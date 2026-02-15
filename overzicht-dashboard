@@ -1,0 +1,218 @@
+views:
+  - type: sections
+    path: ''
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: title
+            heading: Status
+          - type: tile
+            name: Anita
+            entity: device_tracker.10063a1aa0cfebcb_bermuda_tracker
+            state_content: place
+            tap_action:
+              action: more-info
+            show_entity_picture: false
+            icon: mdi:home
+          - type: tile
+            name: Rients
+            state_content: place
+            show_entity_picture: false
+            entity: device_tracker.1006381ee03fc933_bermuda_tracker
+            icon: mdi:home
+          - type: tile
+            entity: input_boolean.status_anita_ver_weg
+            name: ABV Verweg
+            icon: mdi:align-horizontal-distribute
+            show_entity_picture: false
+            state_content: place
+            vertical: false
+            tap_action:
+              action: more-info
+            features_position: bottom
+          - type: tile
+            entity: input_boolean.status_rients_ver_weg
+            icon: mdi:align-horizontal-distribute
+            name: RB Verweg
+            show_entity_picture: false
+            state_content: place
+            vertical: false
+            tap_action:
+              action: more-info
+            features_position: bottom
+          - type: tile
+            entity: input_boolean.status_niet_thuis
+            layout_options:
+              grid_columns: 2
+              grid_rows: 1
+            state_content:
+              - state
+              - last_changed
+            name: We zijn niet thuis
+          - type: tile
+            entity: input_boolean.thermostaat_regelen
+            state_content:
+              - state
+              - last_changed
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+          - type: tile
+            entity: sensor.10063a1aa0cfebcb_area
+            name: Anita
+          - type: tile
+            entity: sensor.1006381ee03fc933_area
+            name: Rients
+          - type: tile
+            entity: binary_sensor.motion_kantoor_motion
+            name: Kantoor
+            state_content: last_changed
+          - type: tile
+            entity: binary_sensor.motion_zolder_motion
+            name: Zolder
+            state_content: last_changed
+          - type: tile
+            entity: binary_sensor.aanwezigheid_kamer_presence
+            features_position: bottom
+            vertical: false
+            icon: ''
+          - type: tile
+            entity: input_boolean.detectiekamer
+            features_position: bottom
+            vertical: false
+            icon_tap_action:
+              action: none
+          - title: Energiedistributie vandaag
+            type: energy-distribution
+            link_dashboard: true
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: title
+            heading: Energie
+          - type: history-graph
+            entities:
+              - entity: sensor.zonnepaneel_garage_power
+                name: Panelen Uit
+              - entity: sensor.solaredge_current_power
+                name: Solaredge
+              - entity: sensor.p1_meter_power
+                name: Net belasting
+              - entity: sensor.power_consumed_phase_1
+                name: P1
+              - entity: sensor.power_consumed_phase_2
+                name: P2
+              - entity: sensor.power_consumed_phase_3
+                name: P3
+            hours_to_show: 0.05
+            logarithmic_scale: false
+        column_span: 1
+    title: Status
+    cards: []
+    icon: mdi:folder-home
+    subview: false
+    max_columns: 4
+  - type: sections
+    max_columns: 4
+    title: Schakelaar
+    path: schakelaar
+    icon: mdi:electric-switch
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Schakelaars
+            heading_style: title
+          - type: tile
+            entity: switch.schemerlamp
+            state_content:
+              - state
+              - last_changed
+            tap_action:
+              action: toggle
+            icon_tap_action:
+              action: toggle
+          - type: tile
+            entity: switch.schemerlamp_anita
+            state_content:
+              - state
+              - last_changed
+            tap_action:
+              action: toggle
+            layout_options:
+              grid_columns: 2
+            name: Lamp Anita
+          - type: tile
+            entity: switch.shelly_vriezer
+            state_content:
+              - state
+              - last_changed
+            tap_action:
+              action: toggle
+            name: 'TV meubel beneden '
+            features_position: bottom
+            vertical: false
+          - type: tile
+            name: Kantoor
+            tap_action:
+              action: toggle
+            features_position: bottom
+            vertical: false
+            entity: switch.zigbee_kantoor
+          - type: tile
+            entity: switch.zigbee_tvzolder
+            state_content:
+              - state
+              - last_changed
+            tap_action:
+              action: toggle
+            features_position: bottom
+            vertical: false
+            name: Zolder TV
+          - type: tile
+            entity: switch.shelly_zolder
+            tap_action:
+              action: toggle
+            name: Scherm Zolder
+          - type: tile
+            entity: light.woonkamer_2
+            features_position: bottom
+            vertical: false
+          - type: tile
+            entity: light.eethoek_2
+          - type: tile
+            entity: light.keuken
+          - type: tile
+            entity: switch.shelly_nuc
+            name: RAID BACKUP
+            state_content:
+              - state
+              - last_changed
+            vertical: false
+            tap_action:
+              action: toggle
+            features_position: bottom
+        column_span: 1
+      - type: grid
+        cards:
+          - type: heading
+            heading: Verwarming
+            heading_style: title
+          - type: thermostat
+            entity: climate.woonkamer
+            show_current_as_primary: true
+            features:
+              - type: climate-hvac-modes
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+          - type: thermostat
+            entity: climate.zolder
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+            features:
+              - type: climate-hvac-modes
+            show_current_as_primary: true
