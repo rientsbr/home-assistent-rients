@@ -7,94 +7,55 @@ views:
           - type: heading
             heading_style: title
             heading: Status
-          - type: tile
-            name: Anita
-            entity: device_tracker.10063a1aa0cfebcb_bermuda_tracker
-            state_content: place
-            tap_action:
-              action: more-info
-            show_entity_picture: false
-            icon: mdi:home
-          - type: tile
-            name: Rients
-            state_content: place
-            show_entity_picture: false
-            entity: device_tracker.1006381ee03fc933_bermuda_tracker
-            icon: mdi:home
-          - type: tile
-            entity: input_boolean.status_anita_ver_weg
-            name: ABV Verweg
-            icon: mdi:align-horizontal-distribute
-            show_entity_picture: false
-            state_content: place
-            vertical: false
-            tap_action:
-              action: more-info
-            icon_tap_action:
-              action: more-info
-            features_position: bottom
-          - type: tile
-            entity: input_boolean.status_rients_ver_weg
-            name: RB Verweg
-            icon: mdi:align-horizontal-distribute
-            show_entity_picture: false
-            state_content: place
-            vertical: false
-            tap_action:
-              action: more-info
-            icon_tap_action:
-              action: more-info
-            features_position: bottom
-          - type: tile
-            entity: input_boolean.status_niet_thuis
-            layout_options:
-              grid_columns: 2
-              grid_rows: 1
-            state_content:
-              - state
-              - last_changed
-            name: We zijn niet thuis
-          - type: tile
-            entity: input_boolean.thermostaat_regelen
-            state_content:
-              - state
-              - last_changed
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-          - type: tile
-            entity: sensor.10063a1aa0cfebcb_area
-            name: Anita
-          - type: tile
-            entity: sensor.1006381ee03fc933_area
-            name: Rients
-          - type: tile
-            entity: binary_sensor.motion_kantoor_motion
-            name: Kantoor
-            state_content: last_changed
-          - type: tile
-            entity: binary_sensor.motion_zolder_motion
-            name: Zolder
-            state_content: last_changed
-          - type: tile
-            entity: binary_sensor.aanwezigheid_kamer_presence
-            features_position: bottom
-            vertical: false
-            icon: ''
-          - type: tile
-            entity: input_boolean.detectiekamer
-            features_position: bottom
-            vertical: false
-            icon_tap_action:
-              action: none
+          - type: glance
+            entities:
+              - entity: device_tracker.10063a1aa0cfebcb_bermuda_tracker
+                name: Anita
+              - entity: sensor.10063a1aa0cfebcb_area
+                name: Anita
+              - entity: device_tracker.1006381ee03fc933_bermuda_tracker
+                name: Rients
+              - entity: sensor.1006381ee03fc933_area
+                name: Rients
+            grid_options:
+              columns: 12
+              rows: auto
+          - type: glance
+            entities:
+              - entity: binary_sensor.motion_kantoor_motion
+                name: Kantoor
+              - entity: binary_sensor.motion_zolder_motion
+                name: Zolder
+              - entity: binary_sensor.aanwezigheid_kamer_presence
+                name: Kamer
+            grid_options:
+              columns: 12
+              rows: auto
+          - type: glance
+            entities:
+              - entity: input_boolean.status_anita_ver_weg
+                name: ABV verweg
+              - entity: input_boolean.status_rients_ver_weg
+                name: RMB verweg
+              - entity: input_boolean.status_niet_thuis
+                name: We zijn niet thuis
+            grid_options:
+              columns: 12
+              rows: auto
+            visibility:
+              - condition: state
+                entity: input_boolean.status_anita_ver_weg
+                state: 'on'
+              - condition: state
+                entity: input_boolean.status_rients_ver_weg
+                state: 'on'
           - type: glance
             entities:
               - entity: sensor.p1_meter_power
               - entity: sensor.marstek_m1_battery_state_of_charge
-                name: M1 SoC
+                name: Thuis Bat Status
               - entity: sensor.marstek_m1_battery_power
-                name: M1 Power
+                name: Batterij Power
             visibility:
               - condition: state
                 entity: sensor.marstek_m1_device_name
@@ -102,73 +63,56 @@ views:
             grid_options:
               columns: 12
               rows: auto
-          - title: Energiedistributie vandaag
-            type: energy-distribution
-            link_dashboard: true
+        column_span: 3
       - type: grid
         cards:
           - type: heading
             heading_style: title
-            heading: Energie
-          - type: history-graph
-            entities:
-              - entity: sensor.p1_meter_power
-                name: Net belasting
-            hours_to_show: 0.05
-            logarithmic_scale: false
+            heading: Huidige Energie
+            icon: mdi:lightning-bolt
           - type: history-graph
             entities:
               - entity: sensor.l1_fase_1
-                name: IND/BOV/BEN
+                name: MK/BEN/BOV/OVEN
               - entity: sensor.l1_fase_2
-                name: HAL/TRAP/VAAT
+                name: BOY/VAAT/HAL/TA
               - entity: sensor.l1_fase_3
-                name: OVEN/WASM/BOYL
+                name: IND/WAS
+              - entity: input_text.house_battery_strategy_active_sub_strategy
+                name: Execute
             hours_to_show: 0.05
             logarithmic_scale: false
-          - type: gauge
-            entity: sensor.l1_fase_1
-            name: Fase 1
-            needle: true
-            min: 0
-            max: 3600
-            severity:
-              green: 0
-              yellow: 2300
-              red: 3000
-            grid_options:
-              columns: 4
-              rows: auto
-            theme: Mushroom Shadow
-          - type: gauge
-            entity: sensor.l1_fase_2
-            name: Fase 2
-            needle: true
-            min: 0
-            max: 3600
-            severity:
-              green: 0
-              yellow: 2300
-              red: 3000
-            grid_options:
-              columns: 4
-              rows: auto
-            theme: Mushroom Shadow
-          - type: gauge
-            entity: sensor.l1_fase_3
-            name: Fase 3
-            needle: true
-            min: 0
-            max: 3600
-            severity:
-              green: 0
-              yellow: 2300
-              red: 3000
-            grid_options:
-              columns: 4
-              rows: auto
-            theme: Mushroom Shadow
-        column_span: 1
+          - type: history-graph
+            entities:
+              - entity: input_number.house_battery_control_pid_output
+                name: PID control
+              - entity: sensor.p1_meter_power
+                name: Grid power
+              - entity: select.marstek_m1_forcible_charge_discharge
+                name: M1
+              - entity: select.marstek_m2_forcible_charge_discharge
+                name: M2
+              - entity: select.marstek_m3_forcible_charge_discharge
+                name: M3
+              - entity: select.marstek_m4_forcible_charge_discharge
+                name: M4
+            hours_to_show: 0.05
+          - type: entities
+            entities:
+              - entity: sensor.l1_fase_1
+                name: Fase 1 (act)
+              - entity: input_number.l1_meter_max
+                name: fase 1 (max)
+              - entity: sensor.l1_fase_2
+                name: Fase 2 (act)
+              - entity: input_number.l1_fase_2_max
+                name: fase 2 (max)
+              - entity: sensor.l1_fase_3
+                name: Fase 3 (act)
+              - entity: input_number.l1_fase_3_max
+                name: fase 3 (max)
+            title: Fase(s)
+        column_span: 3
     title: Status
     cards: []
     icon: mdi:folder-home
@@ -178,6 +122,22 @@ views:
       layout: center
       badges_position: bottom
       badges_wrap: wrap
+    badges:
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_select.house_battery_strategy
+        name: Choose strategy
+        tap_action:
+          action: more-info
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_text.house_battery_strategy_active_sub_strategy
+        show_entity_picture: false
+        name: Executing
   - type: sections
     max_columns: 4
     title: Schakelaar
@@ -189,57 +149,56 @@ views:
           - type: heading
             heading: Schakelaars
             heading_style: title
-          - type: tile
-            entity: switch.schemerlamp
-            state_content:
-              - state
-              - last_changed
-            tap_action:
-              action: toggle
-            icon_tap_action:
-              action: toggle
-          - type: tile
-            entity: switch.schemerlamp_anita
-            state_content:
-              - state
-              - last_changed
-            tap_action:
-              action: toggle
-            layout_options:
-              grid_columns: 2
-            name: Lamp Anita
-          - type: tile
-            entity: switch.shelly_vriezer
-            state_content:
-              - state
-              - last_changed
-            tap_action:
-              action: toggle
-            name: 'TV meubel beneden '
-            features_position: bottom
-            vertical: false
-          - type: tile
-            name: Kantoor
-            tap_action:
-              action: toggle
-            features_position: bottom
-            vertical: false
-            entity: switch.zigbee_kantoor
-          - type: tile
-            entity: switch.zigbee_tvzolder
-            state_content:
-              - state
-              - last_changed
-            tap_action:
-              action: toggle
-            features_position: bottom
-            vertical: false
-            name: Zolder TV
-          - type: tile
-            entity: switch.shelly_zolder
-            tap_action:
-              action: toggle
-            name: Scherm Zolder
+          - type: glance
+            entities:
+              - entity: switch.schemerlamp
+                name: Schemer
+                tap_action:
+                  action: toggle
+              - entity: switch.schemerlamp_anita
+                name: LP Anita
+                tap_action:
+                  action: toggle
+              - entity: switch.shelly_vriezer
+                name: TV-meub
+                tap_action:
+                  action: toggle
+              - entity: switch.zigbee_kantoor
+                name: Kantoor
+                tap_action:
+                  action: toggle
+            visibility:
+              - condition: state
+                entity: sensor.marstek_m1_device_name
+                state_not: unknown
+            grid_options:
+              columns: 12
+              rows: auto
+          - type: glance
+            entities:
+              - entity: switch.zigbee_tvzolder
+                name: TV-zolder
+                tap_action:
+                  action: toggle
+              - entity: switch.shelly_zolder
+                name: Scherm Zolder
+                tap_action:
+                  action: toggle
+              - entity: switch.shelly_nuc
+                name: USB Backup
+                tap_action:
+                  action: toggle
+              - entity: input_boolean.thermostaat_regelen
+                name: Termostaat Regelen
+                tap_action:
+                  action: toggle
+            visibility:
+              - condition: state
+                entity: sensor.marstek_m1_device_name
+                state_not: unknown
+            grid_options:
+              columns: 12
+              rows: auto
           - type: tile
             entity: light.woonkamer_2
             features_position: bottom
@@ -248,16 +207,6 @@ views:
             entity: light.eethoek_2
           - type: tile
             entity: light.keuken
-          - type: tile
-            entity: switch.shelly_nuc
-            name: RAID BACKUP
-            state_content:
-              - state
-              - last_changed
-            vertical: false
-            tap_action:
-              action: toggle
-            features_position: bottom
         column_span: 1
       - type: grid
         cards:
@@ -280,3 +229,75 @@ views:
             features:
               - type: climate-hvac-modes
             show_current_as_primary: true
+  - type: sections
+    max_columns: 4
+    title: Energie
+    path: energie
+    icon: mdi:transmission-tower
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: title
+            heading: 'Energie Palladiostraat '
+          - title: Energiedistributie vandaag
+            type: energy-distribution
+            link_dashboard: true
+          - type: history-graph
+            entities:
+              - entity: sensor.p1_meter_power
+                name: Net belasting
+            hours_to_show: 0.05
+            logarithmic_scale: false
+          - type: history-graph
+            entities:
+              - entity: sensor.l1_fase_1
+                name: MK/BEN/BOV/OVEN
+              - entity: sensor.l1_fase_2
+                name: BOY/VAAT/HAL/TA
+              - entity: sensor.l1_fase_3
+                name: IND/WASM
+            hours_to_show: 0.05
+            logarithmic_scale: false
+          - type: gauge
+            entity: sensor.l1_fase_1
+            name: Fase 1
+            needle: true
+            min: 0
+            max: 3600
+            severity:
+              green: 0
+              yellow: 2300
+              red: 3000
+            grid_options:
+              columns: 4
+              rows: auto
+            theme: Mushroom Shadow
+          - type: gauge
+            entity: sensor.l1_fase_2
+            needle: true
+            min: 0
+            max: 3600
+            severity:
+              green: 0
+              yellow: 2300
+              red: 3000
+            grid_options:
+              columns: 4
+              rows: auto
+            theme: Mushroom Shadow
+            name: Fase 2
+          - type: gauge
+            entity: sensor.l1_fase_3
+            needle: true
+            min: 0
+            max: 3600
+            severity:
+              green: 0
+              yellow: 2300
+              red: 3000
+            grid_options:
+              columns: 4
+              rows: auto
+            theme: Mushroom Shadow
+            name: Fase 3
