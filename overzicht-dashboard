@@ -30,15 +30,19 @@ views:
             vertical: false
             tap_action:
               action: more-info
+            icon_tap_action:
+              action: more-info
             features_position: bottom
           - type: tile
             entity: input_boolean.status_rients_ver_weg
-            icon: mdi:align-horizontal-distribute
             name: RB Verweg
+            icon: mdi:align-horizontal-distribute
             show_entity_picture: false
             state_content: place
             vertical: false
             tap_action:
+              action: more-info
+            icon_tap_action:
               action: more-info
             features_position: bottom
           - type: tile
@@ -84,6 +88,20 @@ views:
             vertical: false
             icon_tap_action:
               action: none
+          - type: glance
+            entities:
+              - entity: sensor.p1_meter_power
+              - entity: sensor.marstek_m1_battery_state_of_charge
+                name: M1 SoC
+              - entity: sensor.marstek_m1_battery_power
+                name: M1 Power
+            visibility:
+              - condition: state
+                entity: sensor.marstek_m1_device_name
+                state_not: unknown
+            grid_options:
+              columns: 12
+              rows: auto
           - title: Energiedistributie vandaag
             type: energy-distribution
             link_dashboard: true
@@ -94,26 +112,72 @@ views:
             heading: Energie
           - type: history-graph
             entities:
-              - entity: sensor.zonnepaneel_garage_power
-                name: Panelen Uit
-              - entity: sensor.solaredge_current_power
-                name: Solaredge
               - entity: sensor.p1_meter_power
                 name: Net belasting
-              - entity: sensor.power_consumed_phase_1
-                name: P1
-              - entity: sensor.power_consumed_phase_2
-                name: P2
-              - entity: sensor.power_consumed_phase_3
-                name: P3
             hours_to_show: 0.05
             logarithmic_scale: false
+          - type: history-graph
+            entities:
+              - entity: sensor.l1_fase_1
+                name: IND/BOV/BEN
+              - entity: sensor.l1_fase_2
+                name: HAL/TRAP/VAAT
+              - entity: sensor.l1_fase_3
+                name: OVEN/WASM/BOYL
+            hours_to_show: 0.05
+            logarithmic_scale: false
+          - type: gauge
+            entity: sensor.l1_fase_1
+            name: Fase 1
+            needle: true
+            min: 0
+            max: 3600
+            severity:
+              green: 0
+              yellow: 2300
+              red: 3000
+            grid_options:
+              columns: 4
+              rows: auto
+            theme: Mushroom Shadow
+          - type: gauge
+            entity: sensor.l1_fase_2
+            name: Fase 2
+            needle: true
+            min: 0
+            max: 3600
+            severity:
+              green: 0
+              yellow: 2300
+              red: 3000
+            grid_options:
+              columns: 4
+              rows: auto
+            theme: Mushroom Shadow
+          - type: gauge
+            entity: sensor.l1_fase_3
+            name: Fase 3
+            needle: true
+            min: 0
+            max: 3600
+            severity:
+              green: 0
+              yellow: 2300
+              red: 3000
+            grid_options:
+              columns: 4
+              rows: auto
+            theme: Mushroom Shadow
         column_span: 1
     title: Status
     cards: []
     icon: mdi:folder-home
     subview: false
     max_columns: 4
+    header:
+      layout: center
+      badges_position: bottom
+      badges_wrap: wrap
   - type: sections
     max_columns: 4
     title: Schakelaar
