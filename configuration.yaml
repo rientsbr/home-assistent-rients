@@ -1,0 +1,28 @@
+# Loads default set of integrations. Do not remove.
+default_config:
+
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /community/lovelace-card-mod/card-mod.js
+
+mobile_app:
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+homeassistant:
+  packages: !include_dir_named packages
+
+#powercalc:
+evohome:
+  username: "honeywell@marianto.nl"
+  password: "App3Lm03s*"
+#group:
+#  palladiostraat:
+#    name: Bewoners Palladiostraat 16
+#    icon: mdi:home-heart
+#    entities:
+#      - device_tracker.10063a1aa0cfebcb_bermuda_tracker
+#      - device_tracker.1006381ee03fc933_bermuda_tracker
