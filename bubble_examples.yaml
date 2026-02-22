@@ -1,0 +1,98 @@
+## Voorbeeld voor de batterij van de iPhone van Rients
+#
+type: custom:bubble-card
+card_type: button
+button_type: state
+entity: sensor.iphone_rients_battery
+styles: |-
+  :host{
+      --color-ok-icon: green ;
+      --color-warning-icon: orange ;
+      --color-alert-icon: red ;
+      --color-ok: #85A408AA ;
+      --color-warning: #E77910AA ;
+      --color-alert: #CA3333AA ;
+      --color-bar: ${state > 40 ? 'var(--color-ok)'
+                     : state > 20 ? 'var(--color-warning)'
+                     : 'var(--color-alert)'} ;
+      --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+      --color-notification-bubble: red;
+  }
+
+  ha-icon {
+    color: var(${ state > 40 ? '--color-ok-icon':
+                  state > 20 ? '--color-warning-icon' :
+                              '--color-alert-icon'}) 
+              !important; }
+
+  .bubble-button-card-container {
+      background: linear-gradient(
+    to right, 
+    var(--color-bar) 0%, 
+    var(--color-bar) ${Math.round(state)}%, 
+    var(--color-background) ${Math.round(state)}%,
+    var(--color-background) 100%
+  ) !important;
+  }
+
+  ha-card::after {
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 0px solid black;
+    color: #fff;
+    content: "${Math.round(state) < 40 ? '!' : ''}";
+    background: var(--color-notification-bubble);
+    display: block;
+  }
+icon: ""
+name: ""
+sub_button:
+  main: []
+  bottom: []
+layout_options:
+  grid_columns: 2
+  grid_rows: 1
+card_layout: large
+slider_fill_orientation: left
+slider_value_position: right
+
+
+##### Vertikale layout voor de zon
+#####
+type: custom:bubble-card
+card_type: button
+entity: sun.sun
+button_type: state
+card_layout: large
+styles: |+
+  :host{
+    --bubble-border-radius: 20px;
+    --bubble-select-list-width: 200px;
+    --bubble-icon-border-radius: 200px;
+  }
+        
+  .bubble-button-card{
+    width: calc( var(--row-height, 56px) * var(--row-size, 1) + var(--row-gap, 8px) * ( var(--row-size,1) - 1 )) !important;
+    transform-origin: top left;
+    transform:  translate(0%, calc( var(--row-height, 56px) * var(--row-size, 1) + var(--row-gap, 8px) * ( var(--row-size, 1) - 1 ))) rotate(-90deg) ;
+    height: ${card.querySelector('.bubble-button-card-container').getBoundingClientRect().width+'px'} ;
+  }
+
+  .bubble-button-card-container{
+    height: calc( var(--row-height, 56px) * var(--row-size, 1) + var(--row-gap, 8px) * ( var(--row-size, 1) - 1 )) !important;
+    border-style: solid;
+    border-width: var(--ha-card-border-width,1px) !important;
+    border-color: var(--ha-card-border-color,var(--divider-color,#e0e0e0));
+  }
+
+grid_options:
+  columns: 2
+  rows: 4
+sub_button:
+  main: []
+  bottom: []
+slider_fill_orientation: left
+slider_value_position: right
