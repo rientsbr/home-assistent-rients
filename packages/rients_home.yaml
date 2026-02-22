@@ -1,0 +1,99 @@
+# Templates etc voor RM Brandsma HA Dashboard
+#
+#
+# TEMPLATES
+# 
+template:
+#
+# Vermogen per fase (uit P1 meter) omzettenn in Watt
+#
+  - sensor:
+      # 
+      - name: "L1 Fase 1"
+        unique_id: "l1_meter_fase1"
+        unit_of_measurement: "W"
+        device_class: "power"
+        state_class: "measurement"
+        state: >
+          {% set consumption = states('sensor.power_consumed_phase_1') | float(0) %}
+          {{ (consumption) *1000 | round(2) }}
+  - sensor:
+      # 
+      - name: "L1 Fase 2"
+        unique_id: "l1_meter_fase2"
+        unit_of_measurement: "W"
+        device_class: "power"
+        state_class: "measurement"
+        state: >
+          {% set consumption = states('sensor.power_consumed_phase_2') | float(0) %}
+          {{ (consumption) *1000 | round(2) }}
+  - sensor:
+      #
+      - name: "L1 Fase 3"
+        unique_id: "l1_meter_fase3"
+        unit_of_measurement: "W"
+        device_class: "power"
+        state_class: "measurement"
+        state: >
+          {% set consumption = states('sensor.power_consumed_phase_3') | float(0) %}
+          {{ (consumption) *1000 | round(2) }}
+#
+#  template voor EVOHome thermostaar
+  - sensor:
+      #
+      - name: "Thermostaat Woonkamer"
+        unique_id: "thermostaat_woonkamer"
+        unit_of_measurement: "°C"
+        device_class: "temperature"
+        state_class: "measurement"
+        state: >
+          {% set current_temp = state_attr('climate.woonkamer', 'current_temperature') | float(2) %}
+          {% set set_temp = state_attr('climate.woonkamer', 'temperature') | float(2) %}
+          {{ (set_temp - current_temp) * 10 | round(2) }}
+
+  - sensor:
+      #
+      - name: "Thermostaat Zolder"
+        unique_id: "thermostaat_zolder"
+        unit_of_measurement: "°C"
+        device_class: "temperature"
+        state_class: "measurement"
+        state: >
+          {% set current_temp = state_attr('climate.zolder', 'current_temperature') | float(2) %}
+          {% set set_temp = state_attr('climate.zolder', 'temperature') | float(2) %}
+          {{ (set_temp - current_temp) * 10 | round(2) }}
+
+
+
+
+input_number:
+# Maximale vermogens voor de fases bij houden
+  l1fase1max:
+    # 
+    name: "L1 Maximale Watage"
+    min: 1
+    max: 6000
+    step: 1
+    unit_of_measurement: "W"
+    mode: box
+    icon: mdi:chart-timeline-variant-shimmer
+    
+  l1fase2max:
+    # 
+    name: "L2 Maximale Watage"
+    min: 1
+    max: 6000
+    step: 1
+    unit_of_measurement: "W"
+    mode: box
+    icon: mdi:chart-timeline-variant-shimmer
+    
+  l1fase3max:
+    # 
+    name: "L3 Maximale Watage"
+    min: 1
+    max: 6000
+    step: 1
+    unit_of_measurement: "W"
+    mode: box
+    icon: mdi:chart-timeline-variant-shimmer
