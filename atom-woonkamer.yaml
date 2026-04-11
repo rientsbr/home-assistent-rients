@@ -1,10 +1,14 @@
 #
 # Dit is de configuratie voor de ATOM-LITE ESP32 Blueutooth Proxy
 # 
+substitutions:
+
+  device_name: "atom-woonkamer"
+  friendly_name: Atom-Woonkamer
 
 esphome:
-  name: atom-woonkamer
-  friendly_name: Atom-Woonkamer
+  name: ${device_name}
+  friendly_name: ${friendly_name}
 
 esp32:
   board: m5stack-atom
@@ -17,7 +21,7 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "2sLYrbFlL9obAmWqSI8ZHPyzo45fu11vaNP7AxTBaCU="
+    key: "HIPXCLuLVPn6jpmNamCL6H8pQmLY/vHGMDcKt8omu9s="
 
 ota:
   - platform: esphome
@@ -29,10 +33,17 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Atom-Woonkamer"
+    ssid: ${device_name}
     password: "f5NQHwl4U8e1"
 
 captive_portal:
+
+# Restart & Safe Mode Buttons
+button:
+  - platform: restart
+    name: "Restart Device"
+#  - platform: safe_mode
+#    name: "Restart in Safe Mode"
 
 bluetooth_proxy:
   active: true          # default: true (Enables proxying active GATT connections to BLE device)
