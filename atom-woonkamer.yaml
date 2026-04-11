@@ -1,3 +1,7 @@
+#
+# Dit is de configuratie voor de ATOM-LITE ESP32 Blueutooth Proxy
+# 
+
 esphome:
   name: atom-woonkamer
   friendly_name: Atom-Woonkamer
@@ -13,7 +17,7 @@ logger:
 # Enable Home Assistant API
 api:
   encryption:
-    key: "2sLYrbFlL9obAmWqSI8ZHPyzo94fu11vaNP6AxTBaCU="
+    key: "2sLYrbFlL9obAmWqSI8ZHPyzo45fu11vaNP7AxTBaCU="
 
 ota:
   - platform: esphome
@@ -25,7 +29,7 @@ wifi:
 
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
-    ssid: "Atom-Woonkamer Fallback Hotspot"
+    ssid: "Atom-Woonkamer"
     password: "f5NQHwl4U8e1"
 
 captive_portal:
@@ -43,18 +47,19 @@ esp32_ble_tracker:
     duration: 5min      # default: 5min – Length of a scan cycle (ignored if continuous: true)
     continuous: true    # default: true – Scan continuously instead of in timed cycles
 
+# Gebruik de GPIO39 pin als een knop met eenn debounce van 50ms.
 binary_sensor:
   - platform: gpio
     pin:
-      number: GPIO39
+      number: GPIO39    # Dit is Drukknop bovenop de ATOM-Lite
       mode: INPUT
-      inverted: true
-    name: "Atom Button"
+      inverted: true    # Invert de logica van de knop
+    name: "Atom Knop"
     id: atom_button
     filters:
       - delayed_on: 50ms
       - delayed_off: 50ms
-    on_multi_click:
+    on_multi_click: # Detecteer meerdere klikken en lange klikken
       - timing:
           - ON for at most 0.8s
           - OFF for at most 0.5s
@@ -72,20 +77,16 @@ binary_sensor:
           - ON for at least 0.8s
         then:
           - logger.log: "Single Long Clicked"
-          - light.turn_on:
+          - light.turn_off:
               id: atom_light
-              green: 100%
-              blue: 50%
-              red: 30%
-              brightness: 100%
 
 light:
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
-    pin: GPIO27
+    pin: GPIO27       # Dit is de pin voor de RGB LED
     num_leds: 1
-    chipset: SK6812
-    name: "Atom RGB Light"
+    chipset: SK6812   # Dit is het type LED dat in de ATOM-Lite zit (SK6812 RGBW) maar we gebruiken alleen RGB, dus W wordt genegeerd
+    name: "Atom RGB Licht"
     id: atom_light
     restore_mode: RESTORE_DEFAULT_OFF
     effects:
