@@ -1,6 +1,8 @@
 #
 # Dit is de configuratie voor de ATOM-LITE ESP32 Blueutooth Proxy
 # 
+#  Als eerste definieer variabelen om zo deze code te kunnen hergebruiken.
+#
 substitutions:
 
   device_name: "atom-woonkamer"
@@ -40,10 +42,13 @@ captive_portal:
 
 # Restart & Safe Mode Buttons
 button:
-  - platform: restart
-    name: "Restart Device"
-#  - platform: safe_mode
-#    name: "Restart in Safe Mode"
+  - platform: safe_mode
+    id: button_safe_mode
+    name: Safe Mode Boot
+
+  - platform: factory_reset
+    id: factory_reset_btn
+    name: Factory reset
 
 bluetooth_proxy:
   active: true          # default: true (Enables proxying active GATT connections to BLE device)
