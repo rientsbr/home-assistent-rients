@@ -38,7 +38,11 @@ wifi:
     ssid: ${device_name}
     password: "f5NQHwl4U8e1"
 
+web_server:
+  port: 80
+
 captive_portal:
+
 
 # Restart & Safe Mode Buttons
 button:
@@ -107,6 +111,21 @@ light:
     restore_mode: RESTORE_DEFAULT_OFF
     effects:
       - random:
-          name: "Random"
+          name: "Willekeurig"
           transition_length: 1s
           update_interval: 1s
+
+text_sensor:
+#    timestamp:
+#      name: "Timestamp"
+  - platform: wifi_info
+    ip_address:
+      name: "Mijn IP Address"
+    ssid:
+      name: "Wi-Fi SSID"
+    bssid:
+      name: "Wi-Fi BSSID"
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
+
