@@ -1,18 +1,17 @@
 #
 # Dit is de configuratie voor de ATOM-LITE ESP32 Blueutooth Proxy
 # 
-#  Als eerste definieer variabelen om zo deze code te kunnen hergebruiken.
+# Als eerste definieer variabelen om zo deze code te kunnen hergebruiken.
 #
 substitutions:
-
   device_name: "atom-zolder"
   friendly_name: Atom-Zolder
-
 
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
 
+# We gebruiken de M5 Atom ESP32 bord maar wel met de nieuwste framework.
 esp32:
   board: m5stack-atom
   framework:
@@ -22,7 +21,7 @@ esp32:
 logger:
   baud_rate: 0
 
-# Enable Home Assistant API
+# Enable Home Assistant API, met een encryption key
 api:
   encryption:
     key: "HIPXCLuLVPn6jpmNamCL6H8pQmLY/vHGMDcKt8omu9s="
@@ -35,11 +34,12 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+# Enable fallback hotspot (captive portal) in geval we geen wifi connectie hebben met de AP.
   ap:
     ssid: ${device_name}
-#    password: "f5NQHwl4U8e1"
+    password: "f5NQHwl4U8e1"
 
+# Een webserver zodat we zelf een aantal zaken via de web kunnen
 web_server:
   port: 80
 
@@ -69,7 +69,7 @@ esp32_ble_tracker:
     duration: 5min      # default: 5min – Length of a scan cycle (ignored if continuous: true)
     continuous: true    # default: true – Scan continuously instead of in timed cycles
 
-# Gebruik de GPIO39 pin als een knop met eenn debounce van 50ms.
+# Gebruik de GPIO39 pin als een knop met een debounce van 50ms.
 binary_sensor:
   - platform: gpio
     pin:
@@ -103,16 +103,19 @@ light:
           transition_length: 1s
           update_interval: 1s
 
-
+# Maak een tekst Sensor
 text_sensor:
+  # Versie van ESP Home
   - platform: version
     name: "ESPHome Version"
     hide_timestamp: true
-    
+  
+  # Tekst Sensor
   - platform: text
     name: "Status"
     source_id: my_text
-    icon: "mdi:cursor-text"
+    icon: "mdi:alpha-i-circle-outline"
+    
 
 text:
   - platform: template
@@ -122,4 +125,4 @@ text:
     min_length: 0
     max_length: 100
     mode: text
-    icon: "mdi:alpha-i-circle-outline"
+    icon: "mdi:cursor-text"
