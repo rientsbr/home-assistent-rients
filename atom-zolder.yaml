@@ -81,6 +81,30 @@ binary_sensor:
     filters:
       - delayed_on: 50ms
       - delayed_off: 500ms
+#### Woonkamer
+#    filters:
+#      - delayed_on: 50ms
+#      - delayed_off: 50ms
+#    on_multi_click: # Detecteer meerdere klikken en lange klikken
+#      - timing:
+#         - ON for at most 0.8s
+#         - OFF for at most 0.5s
+#         - ON for at most 0.8s
+#         - OFF for at least 0.2s
+#       then:
+#         - logger.log: "Double Clicked"
+#         - light.turn_on:
+#             id: atom_light
+#             red: 100%
+#              blue: 50%
+#              green: 20%
+#              brightness: 50%
+#      - timing:
+#          - ON for at least 0.8s
+#        then:
+#          - logger.log: "Single Long Clicked"
+#          - light.turn_off:
+#              id: atom_light
 #    on_press:
 #        then:
 #          - logger.log: "Single Long Clicked"
