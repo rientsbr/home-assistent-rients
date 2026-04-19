@@ -107,12 +107,12 @@ light:
 text_sensor:
   # Versie van ESP Home
   - platform: version
-    name: "ESPHome Version"
+    name: "Versie ESPHome"
     hide_timestamp: true
   
   # Tekst Sensor
   - platform: text
-    name: "Status"
+    name: "Atom Status"
     source_id: my_text
     icon: "mdi:alpha-i-circle-outline"
     
@@ -120,7 +120,7 @@ text_sensor:
 text:
   - platform: template
     id: my_text
-    name: "Tekst Sensor"
+    name: "Atom Tekst Sensor"
     optimistic: true
     min_length: 0
     max_length: 100
