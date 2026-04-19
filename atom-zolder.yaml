@@ -8,6 +8,7 @@ substitutions:
   device_name: "atom-zolder"
   friendly_name: Atom-Zolder
 
+
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
@@ -19,6 +20,7 @@ esp32:
 
 # Enable logging
 logger:
+  baud_rate: 0
 
 # Enable Home Assistant API
 api:
@@ -36,7 +38,7 @@ wifi:
   # Enable fallback hotspot (captive portal) in case wifi connection fails
   ap:
     ssid: ${device_name}
-    password: "f5NQHwl4U8e1"
+#    password: "f5NQHwl4U8e1"
 
 web_server:
   port: 80
@@ -78,19 +80,20 @@ binary_sensor:
     id: atom_button
     filters:
       - delayed_on: 50ms
-      - delayed_off: 50ms
-    on_press:
-        then:
-          - logger.log: "Knop is ingedrukt"
-          - light.toggle:
-              id: atom_light
+      - delayed_off: 500ms
+#    on_press:
+#        then:
+#          - logger.log: "Single Long Clicked"
+#          - light.toggle:
+#              id: atom_light
+
 
 light:
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
     pin: GPIO27       # Dit is de pin voor de RGB LED
     num_leds: 1
-    chipset: SK6812   # Dit is het type LED dat in de ATOM-Lite zit (SK6812 RGBW) maar we gebruiken alleen RGB, dus W wordt genegeerd
+    chipset: SK6812   
     name: "Atom RGB Licht"
     id: atom_light
     restore_mode: RESTORE_DEFAULT_OFF
@@ -100,8 +103,23 @@ light:
           transition_length: 1s
           update_interval: 1s
 
+
 text_sensor:
   - platform: version
     name: "ESPHome Version"
     hide_timestamp: true
+    
+  - platform: text
+    name: "Status"
+    source_id: my_text
+    icon: "mdi:cursor-text"
 
+text:
+  - platform: template
+    id: my_text
+    name: "Tekst Sensor"
+    optimistic: true
+    min_length: 0
+    max_length: 100
+    mode: text
+    icon: "mdi:alpha-i-circle-outline"
