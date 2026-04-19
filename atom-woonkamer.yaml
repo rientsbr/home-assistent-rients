@@ -12,6 +12,7 @@ esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
 
+# We gebruiken de M5 Atom ESP32 bord maar wel met de nieuwste framework.
 esp32:
   board: m5stack-atom
   framework:
@@ -19,8 +20,9 @@ esp32:
 
 # Enable logging
 logger:
+  baud_rate: 0
 
-# Enable Home Assistant API
+# Enable Home Assistant API, met een encryption key
 api:
   encryption:
     key: "HIPXCLuLVPn6jpmNamCL6H8pQmLY/vHGMDcKt8omu9s="
@@ -33,11 +35,12 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+# Enable fallback hotspot (captive portal) in geval we geen wifi connectie hebben met de AP.
   ap:
     ssid: ${device_name}
     password: "f5NQHwl4U8e1"
 
+# Een webserver zodat we zelf een aantal zaken via de web kunnen
 web_server:
   port: 80
 
@@ -67,7 +70,7 @@ esp32_ble_tracker:
     duration: 5min      # default: 5min – Length of a scan cycle (ignored if continuous: true)
     continuous: true    # default: true – Scan continuously instead of in timed cycles
 
-# Gebruik de GPIO39 pin als een knop met eenn debounce van 50ms.
+# Gebruik de GPIO39 pin als een knop met een debounce van 50ms.
 binary_sensor:
   - platform: gpio
     pin:
@@ -78,34 +81,44 @@ binary_sensor:
     id: atom_button
     filters:
       - delayed_on: 50ms
-      - delayed_off: 50ms
-    on_multi_click: # Detecteer meerdere klikken en lange klikken
-      - timing:
-          - ON for at most 0.8s
-          - OFF for at most 0.5s
-          - ON for at most 0.8s
-          - OFF for at least 0.2s
-        then:
-          - logger.log: "Double Clicked"
-          - light.turn_on:
-              id: atom_light
-              red: 100%
-              blue: 50%
-              green: 20%
-              brightness: 50%
-      - timing:
-          - ON for at least 0.8s
-        then:
-          - logger.log: "Single Long Clicked"
-          - light.turn_off:
-              id: atom_light
+      - delayed_off: 500ms
+#### Woonkamer
+#    filters:
+#      - delayed_on: 50ms
+#      - delayed_off: 50ms
+#    on_multi_click: # Detecteer meerdere klikken en lange klikken
+#      - timing:
+#         - ON for at most 0.8s
+#         - OFF for at most 0.5s
+#         - ON for at most 0.8s
+#         - OFF for at least 0.2s
+#       then:
+#         - logger.log: "Double Clicked"
+#         - light.turn_on:
+#             id: atom_light
+#             red: 100%
+#              blue: 50%
+#              green: 20%
+#              brightness: 50%
+#      - timing:
+#          - ON for at least 0.8s
+#        then:
+#          - logger.log: "Single Long Clicked"
+#          - light.turn_off:
+#              id: atom_light
+#    on_press:
+#        then:
+#          - logger.log: "Single Long Clicked"
+#          - light.toggle:
+#              id: atom_light
+
 
 light:
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
     pin: GPIO27       # Dit is de pin voor de RGB LED
     num_leds: 1
-    chipset: SK6812   # Dit is het type LED dat in de ATOM-Lite zit (SK6812 RGBW) maar we gebruiken alleen RGB, dus W wordt genegeerd
+    chipset: SK6812   
     name: "Atom RGB Licht"
     id: atom_light
     restore_mode: RESTORE_DEFAULT_OFF
@@ -115,17 +128,33 @@ light:
           transition_length: 1s
           update_interval: 1s
 
+# Maak een tekst Sensor
 text_sensor:
-#    timestamp:
-#      name: "Timestamp"
+  # Versie van ESP Home
+  - platform: version
+    name: "Versie ESPHome"
+    hide_timestamp: true
   - platform: wifi_info
     ip_address:
-      name: "Mijn IP Address"
+      name: "Wi-Fi IP Address"
     ssid:
       name: "Wi-Fi SSID"
     bssid:
       name: "Wi-Fi BSSID"
-  - platform: version
-    name: "ESPHome Version"
-    hide_timestamp: true
+  
+  # Tekst Sensor
+  - platform: text
+    name: "Atom Status"
+    source_id: my_text
+    icon: "mdi:alpha-i-circle-outline"
+    
 
+text:
+  - platform: template
+    id: my_text
+    name: "Atom Tekst Sensor"
+    optimistic: true
+    min_length: 0
+    max_length: 100
+    mode: text
+    icon: "mdi:cursor-text"
