@@ -1,7 +1,18 @@
-esphome:
-  name: atom-kantoor
+#
+# Dit is de configuratie voor de ATOM-LITE ESP32 Blueutooth Proxy
+# 
+#  Als eerste definieer variabelen om zo deze code te kunnen hergebruiken.
+#
+substitutions:
+
+  device_name: "atom-kantoor"
   friendly_name: Atom-Kantoor
 
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+# We gebruiken de M5 Atom ESP32 bord maar wel met de nieuwste framework.
 esp32:
   board: m5stack-atom
   framework:
@@ -9,11 +20,12 @@ esp32:
 
 # Enable logging
 logger:
+  baud_rate: 0
 
-# Enable Home Assistant API
+# Enable Home Assistant API, met een encryption key
 api:
   encryption:
-    key: "2sLYrbFlL9obAmWqSI8ZHPyzo34fu11vaNP6AxTBaCU="
+    key: "HIPXCLuLVPn6jpmNamCL6H8pQmLY/vHGMDcKt8omu9s="
 
 ota:
   - platform: esphome
@@ -23,12 +35,27 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+# Enable fallback hotspot (captive portal) in geval we geen wifi connectie hebben met de AP.
   ap:
-    ssid: "Atom-Kantoor Fallback Hotspot"
+    ssid: ${device_name}
     password: "f5NQHwl4U8e1"
 
+# Een webserver zodat we zelf een aantal zaken via de web kunnen
+web_server:
+  port: 80
+
 captive_portal:
+
+
+# Restart & Safe Mode Buttons
+button:
+  - platform: safe_mode
+    id: button_safe_mode
+    name: Safe Mode Boot
+
+  - platform: factory_reset
+    id: factory_reset_btn
+    name: Factory reset
 
 bluetooth_proxy:
   active: true          # default: true (Enables proxying active GATT connections to BLE device)
@@ -43,53 +70,91 @@ esp32_ble_tracker:
     duration: 5min      # default: 5min – Length of a scan cycle (ignored if continuous: true)
     continuous: true    # default: true – Scan continuously instead of in timed cycles
 
+# Gebruik de GPIO39 pin als een knop met een debounce van 50ms.
 binary_sensor:
   - platform: gpio
     pin:
-      number: GPIO39
+      number: GPIO39    # Dit is Drukknop bovenop de ATOM-Lite
       mode: INPUT
-      inverted: true
-    name: "Atom Button"
+      inverted: true    # Invert de logica van de knop
+    name: "Atom Knop"
     id: atom_button
     filters:
       - delayed_on: 50ms
-      - delayed_off: 50ms
-    on_multi_click:
-      - timing:
-          - ON for at most 0.8s
-          - OFF for at most 0.5s
-          - ON for at most 0.8s
-          - OFF for at least 0.2s
-        then:
-          - logger.log: "Double Clicked"
-          - light.turn_on:
-              id: atom_light
-              red: 100%
-              blue: 50%
-              green: 20%
-              brightness: 50%
-      - timing:
-          - ON for at least 0.8s
-        then:
-          - logger.log: "Single Long Clicked"
-          - light.turn_on:
-              id: atom_light
-              green: 100%
-              blue: 50%
-              red: 30%
-              brightness: 100%
+      - delayed_off: 500ms
+#### Woonkamer
+#    filters:
+#      - delayed_on: 50ms
+#      - delayed_off: 50ms
+#    on_multi_click: # Detecteer meerdere klikken en lange klikken
+#      - timing:
+#         - ON for at most 0.8s
+#         - OFF for at most 0.5s
+#         - ON for at most 0.8s
+#         - OFF for at least 0.2s
+#       then:
+#         - logger.log: "Double Clicked"
+#         - light.turn_on:
+#             id: atom_light
+#             red: 100%
+#              blue: 50%
+#              green: 20%
+#              brightness: 50%
+#      - timing:
+#          - ON for at least 0.8s
+#        then:
+#          - logger.log: "Single Long Clicked"
+#          - light.turn_off:
+#              id: atom_light
+#    on_press:
+#        then:
+#          - logger.log: "Single Long Clicked"
+#          - light.toggle:
+#              id: atom_light
+
 
 light:
   - platform: esp32_rmt_led_strip
     rgb_order: GRB
-    pin: GPIO27
+    pin: GPIO27       # Dit is de pin voor de RGB LED
     num_leds: 1
-    chipset: SK6812
-    name: "Atom RGB Light"
+    chipset: SK6812   
+    name: "Atom RGB Licht"
     id: atom_light
     restore_mode: RESTORE_DEFAULT_OFF
     effects:
       - random:
-          name: "Random"
+          name: "Willekeurig"
           transition_length: 1s
           update_interval: 1s
+
+# Maak een tekst Sensor
+text_sensor:
+  # Versie van ESP Home
+  - platform: version
+    name: "Versie ESPHome"
+    hide_timestamp: true
+  - platform: wifi_info
+    ip_address:
+      name: "Wi-Fi IP Address"
+    ssid:
+      name: "Wi-Fi SSID"
+    bssid:
+      name: "Wi-Fi BSSID"
+  
+  # Tekst Sensor
+  - platform: text
+    name: "Atom Status"
+    source_id: my_text
+    icon: "mdi:alpha-i-circle-outline"
+    
+
+text:
+  - platform: template
+    id: my_text
+    name: "Atom Tekst Sensor"
+    optimistic: true
+    min_length: 0
+    max_length: 100
+    mode: text
+    icon: "mdi:cursor-text"
