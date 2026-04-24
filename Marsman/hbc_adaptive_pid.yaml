@@ -1,0 +1,257 @@
+##############################################
+# HBC PID PACKAGE V6 - PULSE + KP CONTROL
+##############################################
+
+input_select:
+  hbc_pid_profile:
+    name: PID Profile
+    options:
+      - SAFE
+      - NORMAL
+      - AGGRESSIVE
+
+input_boolean:
+  hbc_pid_panic_mode:
+    name: HBC PID Panic Mode
+    icon: mdi:alert
+
+input_datetime:
+  hbc_pid_last_switch:
+    name: PID Last Switch
+    has_date: true
+    has_time: true
+
+##############################################
+# INSTELBARE PARAMETERS
+##############################################
+
+input_number:
+
+  # Pulse detectie
+  hbc_pid_pulse_threshold:
+    name: Pulse drempel
+    min: 1
+    max: 50
+    step: 1
+    initial: 8
+
+  # Smoothing
+  hbc_pid_smoothing_normal:
+    name: Smoothing normaal
+    min: 0
+    max: 100
+    step: 1
+    initial: 40
+
+  hbc_pid_smoothing_pulsing:
+    name: Smoothing pulserend
+    min: 0
+    max: 100
+    step: 1
+    initial: 55
+
+  # Kp instellingen
+  hbc_pid_kp_normal:
+    name: Kp normaal
+    min: 0.1
+    max: 1.0
+    step: 0.01
+    initial: 0.5
+
+  hbc_pid_kp_pulsing:
+    name: Kp pulserend
+    min: 0.1
+    max: 1.0
+    step: 0.01
+    initial: 0.6
+
+##############################################
+# SENSORS
+##############################################
+
+template:
+
+  - trigger:
+      - platform: state
+        entity_id: sensor.p1_meter_power
+    sensor:
+      - name: "hbc_power_change"
+        unit_of_measurement: "W"
+        state: >
+          {% set prev = this.attributes.last | default(0) | float(0) %}
+          {% set now = states('sensor.p1_meter_power') | float(0) %}
+          {{ (now - prev) | round(1) }}
+        attributes:
+          last: "{{ states('sensor.p1_meter_power') }}"
+
+  - sensor:
+
+      - name: "hbc_power_change_abs"
+        unit_of_measurement: "W"
+        state: >
+          {{ states('sensor.hbc_power_change') | float(0) | abs }}
+
+      - name: "hbc_pid_error_abs"
+        unit_of_measurement: "W"
+        state: >
+          {{ states('sensor.p1_meter_power') | float(0) | abs }}
+
+      - name: "hbc_pid_quality"
+        state: >
+          {% set e = states('sensor.hbc_pid_error_avg')|float(0) %}
+          {% if e < 50 %}perfect
+          {% elif e < 150 %}good
+          {% elif e < 300 %}ok
+          {% else %}bad
+          {% endif %}
+
+      - name: "hbc_pid_oscillation"
+        state: >
+          {% set dev = states('input_number.house_battery_control_error_deviation')|float(0) %}
+          {% if dev > 300 %}
+            unstable
+          {% elif dev > 150 %}
+            moderate
+          {% else %}
+            stable
+          {% endif %}
+
+      - name: "hbc_pid_pulsing"
+        state: >
+          {% set changes = states('sensor.hbc_pulse_count')|float(0) %}
+          {% set threshold = states('input_number.hbc_pid_pulse_threshold')|float(8) %}
+          {% if changes > threshold %}yes{% else %}no{% endif %}
+
+      - name: "hbc_pid_advice"
+        state: >
+          {% set pulsing = states('sensor.hbc_pid_pulsing') %}
+          {% set error = states('sensor.hbc_pid_error_avg')|float(0) %}
+          {% if pulsing == 'yes' %}Pulsend verbruik
+          {% elif error > 200 %}Reageert traag
+          {% elif error < 50 %}Optimaal
+          {% else %}OK
+          {% endif %}
+
+      - name: "hbc_pid_debug"
+        state: >
+          pulsing={{ states('sensor.hbc_pid_pulsing') }}
+          pulses={{ states('sensor.hbc_pulse_count') }}
+          error={{ states('sensor.hbc_pid_error_avg') }}
+
+  - binary_sensor:
+      - name: "hbc_large_power_change"
+        state: >
+          {{ states('sensor.hbc_power_change_abs')|float(0) > 300 }}
+
+##############################################
+# STATISTICS
+##############################################
+
+sensor:
+
+  - platform: statistics
+    name: "hbc_pid_error_avg"
+    entity_id: sensor.hbc_pid_error_abs
+    state_characteristic: mean
+    max_age:
+      seconds: 60
+
+  - platform: statistics
+    name: "hbc_pulse_count"
+    entity_id: binary_sensor.hbc_large_power_change
+    state_characteristic: count
+    max_age:
+      seconds: 60
+
+##############################################
+# AUTOMATIONS
+##############################################
+
+automation:
+
+  ##############################################
+  # PANIC RESET
+  ##############################################
+  - alias: "HBC PID PANIC RESET"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.hbc_pid_panic_mode
+        to: "on"
+    action:
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.house_battery_control_kp
+        data: { value: 0.5 }
+
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.house_battery_control_ki
+        data: { value: 0.2 }
+
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.house_battery_control_kd
+        data: { value: 0 }
+
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.house_battery_control_error_signal_dampening
+        data:
+          value: "{{ states('input_number.hbc_pid_smoothing_normal') }}"
+
+      - service: input_number.set_value
+        target:
+          entity_id: input_number.house_battery_control_i_term
+        data: { value: 0 }
+
+  ##############################################
+  # PULSE + KP CONTROL (CORE)
+  ##############################################
+  - alias: "HBC PID Pulse Control"
+    trigger:
+      - platform: state
+        entity_id: sensor.hbc_pid_pulsing
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.hbc_pid_panic_mode
+        state: "off"
+
+    action:
+      - choose:
+
+          # PULSEREND
+          - conditions:
+              - condition: state
+                entity_id: sensor.hbc_pid_pulsing
+                state: "yes"
+            sequence:
+              - service: input_number.set_value
+                target:
+                  entity_id: input_number.house_battery_control_error_signal_dampening
+                data:
+                  value: "{{ states('input_number.hbc_pid_smoothing_pulsing') }}"
+
+              - service: input_number.set_value
+                target:
+                  entity_id: input_number.house_battery_control_kp
+                data:
+                  value: "{{ states('input_number.hbc_pid_kp_pulsing') }}"
+
+          # NORMAAL
+          - conditions:
+              - condition: state
+                entity_id: sensor.hbc_pid_pulsing
+                state: "no"
+            sequence:
+              - service: input_number.set_value
+                target:
+                  entity_id: input_number.house_battery_control_error_signal_dampening
+                data:
+                  value: "{{ states('input_number.hbc_pid_smoothing_normal') }}"
+
+              - service: input_number.set_value
+                target:
+                  entity_id: input_number.house_battery_control_kp
+                data:
+                  value: "{{ states('input_number.hbc_pid_kp_normal') }}"

@@ -1,0 +1,162 @@
+title: PID Control V6
+path: pid-control-v6
+icon: mdi:tune
+type: sections
+max_columns: 3
+sections:
+  - type: grid
+    columns: 3
+    cards:
+      - type: heading
+        heading: Status
+      - type: tile
+        entity: sensor.p1_meter_power
+        name: Grid
+      - type: tile
+        entity: sensor.hbc_pid_quality
+        name: Quality
+      - type: tile
+        entity: sensor.hbc_pid_oscillation
+        name: Stability
+      - type: tile
+        entity: sensor.hbc_pid_pulsing
+        name: Pulsend
+      - type: tile
+        entity: input_select.hbc_pid_profile
+        name: Profiel
+      - type: tile
+        entity: input_boolean.hbc_pid_panic_mode
+        name: Panic
+        color: red
+      - type: tile
+        entity: sensor.hbc_pid_advice
+        name: Advies
+        grid_options:
+          columns: 12
+      - type: entities
+        title: PID
+        show_header_toggle: false
+        entities:
+          - entity: input_number.house_battery_control_kp
+            name: Kp (actief)
+          - entity: input_number.house_battery_control_ki
+            name: Ki
+          - entity: input_number.house_battery_control_kd
+            name: Kd
+      - type: entities
+        title: Filters
+        show_header_toggle: false
+        entities:
+          - entity: input_number.house_battery_control_error_signal_dampening
+            name: Input smoothing
+          - entity: input_number.house_battery_control_pid_output_dampening
+            name: Output smoothing
+          - entity: input_number.house_battery_control_hysteresis_in_w
+            name: Hysteresis
+  - type: grid
+    columns: 2
+    cards:
+      - type: heading
+        heading: Pulse tuning
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: input_number.hbc_pid_pulse_threshold
+            name: Pulse drempel
+          - entity: input_number.hbc_pid_smoothing_normal
+            name: Smoothing normaal
+          - entity: input_number.hbc_pid_smoothing_pulsing
+            name: Smoothing pulsend
+          - entity: input_number.hbc_pid_kp_normal
+            name: Kp normaal
+          - entity: input_number.hbc_pid_kp_pulsing
+            name: Kp pulsend
+      - type: gauge
+        entity: sensor.hbc_pid_error_avg
+        name: Gemiddelde fout
+        min: 0
+        max: 600
+        severity:
+          green: 0
+          yellow: 150
+          red: 300
+        grid_options:
+          columns: 6
+      - type: gauge
+        entity: sensor.hbc_pulse_count
+        name: Pulsen/min
+        min: 0
+        max: 40
+        severity:
+          green: 0
+          yellow: 10
+          red: 20
+        grid_options:
+          columns: 6
+      - type: gauge
+        entity: input_number.house_battery_control_error_deviation
+        name: Deviatie
+        min: 0
+        max: 400
+        severity:
+          green: 0
+          yellow: 100
+          red: 250
+        grid_options:
+          columns: 6
+      - type: gauge
+        entity: input_number.house_battery_control_error_signal_dampening
+        name: Actieve smoothing
+        min: 0
+        max: 100
+        grid_options:
+          columns: 6
+      - type: entities
+        show_header_toggle: false
+        entities:
+          - entity: sensor.hbc_pid_debug
+            name: Debug
+          - entity: sensor.hbc_pid_error_avg
+            name: Gemiddelde fout (60s)
+          - entity: sensor.hbc_pulse_count
+            name: Pulsen/min
+  - type: grid
+    columns: 1
+    cards:
+      - type: heading
+        heading: Control Loop
+      - type: custom:mini-graph-card
+        name: Grid vs PID
+        hours_to_show: 0.5
+        points_per_hour: 120
+        line_width: 2
+        show:
+          legend: true
+          extrema: true
+        entities:
+          - entity: sensor.p1_meter_power
+            name: Grid
+            color: orange
+          - entity: input_number.house_battery_control_pid_output
+            name: PID
+            color: dodgerblue
+          - entity: input_number.house_battery_control_error_signal
+            name: Error
+            color: red
+      - title: PID analyse
+        type: history-graph
+        hours_to_show: 0.03
+        entities:
+          - entity: input_number.house_battery_control_pid_output
+            name: PID output
+          - entity: sensor.p1_meter_power
+            name: Grid
+          - entity: input_number.house_battery_control_error_signal
+            name: PID input
+          - entity: input_number.house_battery_control_p_term
+            name: P-term
+          - entity: input_number.house_battery_control_i_term
+            name: I-term
+          - entity: input_number.house_battery_control_d_term
+            name: D-term
+cards: []
