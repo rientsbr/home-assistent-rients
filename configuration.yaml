@@ -26,3 +26,9 @@ evohome:
 #    entities:
 #      - device_tracker.10063a1aa0cfebcb_bermuda_tracker
 #      - device_tracker.1006381ee03fc933_bermuda_tracker
+
+# Nodig voor de reverse proxy voor ha.rmbrandsma.nl
+http:
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.1.52
