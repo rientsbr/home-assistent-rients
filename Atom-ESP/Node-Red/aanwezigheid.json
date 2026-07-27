@@ -1,0 +1,1397 @@
+[
+    {
+        "id": "b942f6342c378f81",
+        "type": "tab",
+        "label": "Aanwezigheid Detectie",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "29830ead9d623b71",
+        "type": "group",
+        "z": "b942f6342c378f81",
+        "name": "Aanwezigheids Detectie Woonkamer",
+        "style": {
+            "label": true,
+            "stroke": "#92d04f"
+        },
+        "nodes": [
+            "c04320c56c36ae4d",
+            "ffc117ccbf51c5f0",
+            "4bbd6c93aa52987c",
+            "700cf5175b357c32",
+            "44a542de6e385de9",
+            "857ad73cb9dddd6c",
+            "8750da926913b8ba"
+        ],
+        "x": 14,
+        "y": 39,
+        "w": 592,
+        "h": 322
+    },
+    {
+        "id": "4d0c04bf786b0e8e",
+        "type": "group",
+        "z": "b942f6342c378f81",
+        "name": "Aanwezigheid Zolder",
+        "style": {
+            "stroke": "#92d04f",
+            "label": true
+        },
+        "nodes": [
+            "b6e382f3f2654da9",
+            "c0ce6c0cb812d526",
+            "face6313ad195ada",
+            "6338ebc47a478ba6",
+            "34815e367ddb5079",
+            "e800a0307e877c17",
+            "08b92d70e141cd03"
+        ],
+        "x": 14,
+        "y": 399,
+        "w": 572,
+        "h": 222
+    },
+    {
+        "id": "42344d4f597c6968",
+        "type": "group",
+        "z": "b942f6342c378f81",
+        "name": "Aanwezigheid Kantoor",
+        "style": {
+            "stroke": "#addb7b",
+            "label": true
+        },
+        "nodes": [
+            "17bd96ec9fc07a51",
+            "40474f3119946e35",
+            "8c9a120a11f357b3",
+            "801657110c573706",
+            "6ffb4571c11b5840",
+            "a87a2f22556c3e61"
+        ],
+        "x": 14,
+        "y": 639,
+        "w": 552,
+        "h": 182
+    },
+    {
+        "id": "c04320c56c36ae4d",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "Aanwezigheid Woonkamer",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 2,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "binary_sensor.aanwezigheid_kamer_presence"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "off",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "60",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            }
+        ],
+        "x": 150,
+        "y": 180,
+        "wires": [
+            [
+                "4bbd6c93aa52987c",
+                "44a542de6e385de9",
+                "8750da926913b8ba"
+            ],
+            [
+                "ffc117ccbf51c5f0",
+                "700cf5175b357c32",
+                "857ad73cb9dddd6c"
+            ]
+        ]
+    },
+    {
+        "id": "ffc117ccbf51c5f0",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "Schakelaar Aan",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "input_boolean.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "input_boolean.detectiekamer"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "input_boolean",
+        "service": "turn_on",
+        "x": 460,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4bbd6c93aa52987c",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "Schakelaar Uit",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "input_boolean.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "input_boolean.detectiekamer"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "input_boolean",
+        "service": "turn_off",
+        "x": 460,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "700cf5175b357c32",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "TV Meubel AAN",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.shelly_vriezer"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_on",
+        "x": 460,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "44a542de6e385de9",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "TV Meubel UIT",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.shelly_vriezer"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_off",
+        "x": 460,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "b4273bda0c07c842",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "name": "Fase 1 vermogen",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "sensor.l1_fase_1"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            },
+            {
+                "property": "vermogen",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            },
+            {
+                "property": "vermogen",
+                "propertyType": "flow",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "x": 100,
+        "y": 980,
+        "wires": [
+            [
+                "29dc8f145084e4a6"
+            ]
+        ]
+    },
+    {
+        "id": "9b7b26c2ed0f207b",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "name": "Fase 2 vermogen",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "sensor.l1_fase_2"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            },
+            {
+                "property": "vermogen",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "x": 100,
+        "y": 1040,
+        "wires": [
+            [
+                "bf8577fa9cf06b5b"
+            ]
+        ]
+    },
+    {
+        "id": "70fc15bd686d6b77",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "name": "Fase 3 vermogen",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "sensor.l1_fase_3"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            },
+            {
+                "property": "vermogen",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "x": 100,
+        "y": 1100,
+        "wires": [
+            [
+                "ea08789c03fd298a"
+            ]
+        ]
+    },
+    {
+        "id": "29dc8f145084e4a6",
+        "type": "api-current-state",
+        "z": "b942f6342c378f81",
+        "name": "Fase 1 Max",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 1,
+        "halt_if": "",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "input_number.l1fase1max",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            },
+            {
+                "property": "maxvermogen",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            },
+            {
+                "property": "maxvermogen",
+                "propertyType": "flow",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 310,
+        "y": 980,
+        "wires": [
+            [
+                "c98fbd250baef148"
+            ]
+        ]
+    },
+    {
+        "id": "c98fbd250baef148",
+        "type": "switch",
+        "z": "b942f6342c378f81",
+        "name": "",
+        "property": "vermogen",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "maxvermogen",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 450,
+        "y": 980,
+        "wires": [
+            [
+                "51e7922baa3b40f5"
+            ]
+        ]
+    },
+    {
+        "id": "51e7922baa3b40f5",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "name": "Set Maximum",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "input_number.set_value",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "input_number.l1fase1max"
+        ],
+        "labelId": [],
+        "data": "{\"value\":\"{{vermogen}}\"}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "input_number",
+        "service": "set_value",
+        "x": 600,
+        "y": 980,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "bf8577fa9cf06b5b",
+        "type": "api-current-state",
+        "z": "b942f6342c378f81",
+        "name": "Fase 2 Max",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 1,
+        "halt_if": "",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "input_number.l1fase2max",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            },
+            {
+                "property": "maxvermogen",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 310,
+        "y": 1040,
+        "wires": [
+            [
+                "1582ddc6386bf0d0"
+            ]
+        ]
+    },
+    {
+        "id": "1582ddc6386bf0d0",
+        "type": "switch",
+        "z": "b942f6342c378f81",
+        "name": "",
+        "property": "vermogen",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "maxvermogen",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 450,
+        "y": 1040,
+        "wires": [
+            [
+                "ae6bbd1dac8e76ef"
+            ]
+        ]
+    },
+    {
+        "id": "ae6bbd1dac8e76ef",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "name": "Set Maximum",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "input_number.set_value",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "input_number.l1fase2max"
+        ],
+        "labelId": [],
+        "data": "{\"value\":\"{{vermogen}}\"}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "input_number",
+        "service": "set_value",
+        "x": 600,
+        "y": 1040,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ea08789c03fd298a",
+        "type": "api-current-state",
+        "z": "b942f6342c378f81",
+        "name": "Fase 3 Max",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 1,
+        "halt_if": "",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "input_number.l1fase3max",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            },
+            {
+                "property": "maxvermogen",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 310,
+        "y": 1100,
+        "wires": [
+            [
+                "8caeb445f606900b"
+            ]
+        ]
+    },
+    {
+        "id": "8caeb445f606900b",
+        "type": "switch",
+        "z": "b942f6342c378f81",
+        "name": "",
+        "property": "vermogen",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "gt",
+                "v": "maxvermogen",
+                "vt": "msg"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 450,
+        "y": 1100,
+        "wires": [
+            [
+                "38c050dd91638fd0"
+            ]
+        ]
+    },
+    {
+        "id": "38c050dd91638fd0",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "name": "Set Maximum",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "input_number.set_value",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "input_number.l1fase3max"
+        ],
+        "labelId": [],
+        "data": "{\"value\":\"{{vermogen}}\"}",
+        "dataType": "json",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "input_number",
+        "service": "set_value",
+        "x": 600,
+        "y": 1100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "857ad73cb9dddd6c",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "Atom WK Led groen",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "light.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "light.atom_woonkamer_atom_rgb_licht"
+        ],
+        "labelId": [],
+        "data": "{     \"rgb_color\": [0, 255, 0],     \"brightness_pct\": 25 }",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "light",
+        "service": "turn_on",
+        "x": 480,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8750da926913b8ba",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "29830ead9d623b71",
+        "name": "Atom WK Led uit",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "light.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "light.atom_woonkamer_atom_rgb_licht"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "light",
+        "service": "turn_off",
+        "x": 470,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "17bd96ec9fc07a51",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "g": "42344d4f597c6968",
+        "name": "Knop Kantoor",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "binary_sensor.atom_kantoor_atom_knop"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            }
+        ],
+        "x": 110,
+        "y": 780,
+        "wires": [
+            [
+                "8c9a120a11f357b3"
+            ]
+        ]
+    },
+    {
+        "id": "40474f3119946e35",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "42344d4f597c6968",
+        "name": "Zet kantoor UIT",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.shelly_kantoor4"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_off",
+        "x": 460,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8c9a120a11f357b3",
+        "type": "switch",
+        "z": "b942f6342c378f81",
+        "g": "42344d4f597c6968",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "on",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 290,
+        "y": 780,
+        "wires": [
+            [
+                "40474f3119946e35"
+            ]
+        ]
+    },
+    {
+        "id": "b6e382f3f2654da9",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "Aanwezigheid Zolder",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "binary_sensor.motion_zolder_motion"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            }
+        ],
+        "x": 140,
+        "y": 440,
+        "wires": [
+            [
+                "c0ce6c0cb812d526",
+                "face6313ad195ada"
+            ]
+        ]
+    },
+    {
+        "id": "c0ce6c0cb812d526",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "Aanwezigheid",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.zigbee_tvzolder",
+            "switch.shelly_zolder"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_on",
+        "x": 400,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "face6313ad195ada",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "Atom Zolder LED Groen",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "light.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "light.atom_zolder_atom_rgb_licht"
+        ],
+        "labelId": [],
+        "data": "{     \"rgb_color\": [0, 255, 0],     \"brightness_pct\": 25 }",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "light",
+        "service": "turn_on",
+        "x": 430,
+        "y": 480,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6338ebc47a478ba6",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "Knop Zolder",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "binary_sensor.atom_zolder_atom_knop"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            }
+        ],
+        "x": 110,
+        "y": 540,
+        "wires": [
+            [
+                "34815e367ddb5079"
+            ]
+        ]
+    },
+    {
+        "id": "34815e367ddb5079",
+        "type": "switch",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "",
+        "property": "payload",
+        "propertyType": "msg",
+        "rules": [
+            {
+                "t": "eq",
+                "v": "on",
+                "vt": "str"
+            }
+        ],
+        "checkall": "true",
+        "repair": false,
+        "outputs": 1,
+        "x": 270,
+        "y": 540,
+        "wires": [
+            [
+                "e800a0307e877c17",
+                "08b92d70e141cd03"
+            ]
+        ]
+    },
+    {
+        "id": "e800a0307e877c17",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "Zet zolder uit",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.shelly_zoldertv",
+            "switch.shelly_zolder"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_off",
+        "x": 430,
+        "y": 540,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "08b92d70e141cd03",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "4d0c04bf786b0e8e",
+        "name": "Atom Zolder LED UIT",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "light.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "light.atom_zolder_atom_rgb_licht"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "light",
+        "service": "turn_off",
+        "x": 460,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "801657110c573706",
+        "type": "server-state-changed",
+        "z": "b942f6342c378f81",
+        "g": "42344d4f597c6968",
+        "name": "Aanwezigheid Kantoor",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 1,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "binary_sensor.motion_kantoor_motion"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "",
+        "ifStateType": "str",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            }
+        ],
+        "x": 140,
+        "y": 680,
+        "wires": [
+            [
+                "6ffb4571c11b5840",
+                "a87a2f22556c3e61"
+            ]
+        ]
+    },
+    {
+        "id": "6ffb4571c11b5840",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "42344d4f597c6968",
+        "name": "Zet Kantoor Aan",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.shelly_kantoor4"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_on",
+        "x": 360,
+        "y": 680,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a87a2f22556c3e61",
+        "type": "api-call-service",
+        "z": "b942f6342c378f81",
+        "g": "42344d4f597c6968",
+        "name": "Atom Kantoor LED Groen",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "light.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "light.atom_kantoor_atom_rgb_licht"
+        ],
+        "labelId": [],
+        "data": "{     \"rgb_color\": [0, 255, 0],     \"brightness_pct\": 25 }",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "light",
+        "service": "turn_on",
+        "x": 390,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "176d29a.6f648d6",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true,
+        "rejectUnauthorizedCerts": true,
+        "ha_boolean": [],
+        "connectionDelay": false,
+        "cacheJson": false,
+        "heartbeat": false,
+        "heartbeatInterval": "",
+        "statusSeparator": "",
+        "enableGlobalContextStore": false
+    },
+    {
+        "id": "aeede7f7161e6e10",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-home-assistant-websocket": "0.80.3"
+        }
+    }
+]
