@@ -46,7 +46,6 @@ web_server:
 
 captive_portal:
 
-
 # Restart & Safe Mode Buttons
 button:
   - platform: safe_mode
@@ -82,40 +81,10 @@ binary_sensor:
     filters:
       - delayed_on: 50ms
       - delayed_off: 500ms
-#### Woonkamer
-#    filters:
-#      - delayed_on: 50ms
-#      - delayed_off: 50ms
-#    on_multi_click: # Detecteer meerdere klikken en lange klikken
-#      - timing:
-#         - ON for at most 0.8s
-#         - OFF for at most 0.5s
-#         - ON for at most 0.8s
-#         - OFF for at least 0.2s
-#       then:
-#         - logger.log: "Double Clicked"
-#         - light.turn_on:
-#             id: atom_light
-#             red: 100%
-#              blue: 50%
-#              green: 20%
-#              brightness: 50%
-#      - timing:
-#          - ON for at least 0.8s
-#        then:
-#          - logger.log: "Single Long Clicked"
-#          - light.turn_off:
-#              id: atom_light
-#    on_press:
-#        then:
-#          - logger.log: "Single Long Clicked"
-#          - light.toggle:
-#              id: atom_light
-
 
 light:
   - platform: esp32_rmt_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     pin: GPIO27       # Dit is de pin voor de RGB LED
     num_leds: 1
     chipset: SK6812   
@@ -148,7 +117,6 @@ text_sensor:
     source_id: my_text
     icon: "mdi:alpha-i-circle-outline"
     
-
 text:
   - platform: template
     id: my_text
@@ -158,3 +126,4 @@ text:
     max_length: 100
     mode: text
     icon: "mdi:cursor-text"
+
