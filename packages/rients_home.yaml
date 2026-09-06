@@ -97,3 +97,28 @@ input_number:
     unit_of_measurement: "W"
     mode: box
     icon: mdi:chart-timeline-variant-shimmer
+
+sensor:
+  - platform: filter
+    name: "Stroom Fase_1 (Gefilterd)"
+    entity_id: sensor.current_phase_1
+    filters:
+      - filter: outlier
+        window_size: 4
+        radius: 15.0
+
+  - platform: filter
+    name: "Stroom Fase_2 (Gefilterd)"
+    entity_id: sensor.current_phase_2
+    filters:
+      - filter: outlier
+        window_size: 4
+        radius: 15.0
+
+  - platform: filter
+    name: "Stroom Fase_3 (Gefilterd)"
+    entity_id: sensor.current_phase_3
+    filters:
+      - filter: outlier
+        window_size: 4
+        radius: 15.0
