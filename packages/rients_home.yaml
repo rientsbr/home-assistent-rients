@@ -15,8 +15,17 @@ template:
         device_class: "power"
         state_class: "measurement"
         state: >
-          {% set consumption = states('sensor.power_consumed_phase_1') | float(0) %}
-          {{ (consumption) *1000 | round(2) }}
+          {% set consumption = states('sensor.power_consumed_phase_1') | float(none) %}
+          {% set vorige = states('sensor.vermogen_fase_1_gefilterd') | float(none) %}
+          {% if consumption is not none and 0 <= consumption <= 5.75 %}
+            {{ (consumption) *1000 | round(2) }}
+          {%else%}
+            {{ vorige }}
+          {%endif%}
+
+            
+
+
   - sensor:
       # 
       - name: "L1 Fase 2"
@@ -25,8 +34,14 @@ template:
         device_class: "power"
         state_class: "measurement"
         state: >
-          {% set consumption = states('sensor.power_consumed_phase_2') | float(0) %}
-          {{ (consumption) *1000 | round(2) }}
+          {% set consumption = states('sensor.power_consumed_phase_2') | float(none) %}
+          {% set vorige = states('sensor.vermogen_fase_2_gefilterd') | float(none) %}
+          {% if consumption is not none and 0 <= consumption <= 5.75 %}
+            {{ (consumption) *1000 | round(2) }}
+          {%else%}
+            {{ vorige }}
+          {%endif%}
+
   - sensor:
       #
       - name: "L1 Fase 3"
@@ -35,8 +50,14 @@ template:
         device_class: "power"
         state_class: "measurement"
         state: >
-          {% set consumption = states('sensor.power_consumed_phase_3') | float(0) %}
-          {{ (consumption) *1000 | round(2) }}
+          {% set consumption = states('sensor.power_consumed_phase_3') | float(none) %}
+          {% set vorige = states('sensor.vermogen_fase_3_gefilterd') | float(none) %}
+          {% if consumption is not none and 0 <= consumption <= 5.75 %}
+            {{ (consumption) *1000 | round(2) }}
+          {%else%}
+            {{ vorige }}
+          {%endif%}
+
 #
 #  template voor EVOHome thermostaar
   - sensor:
@@ -98,27 +119,28 @@ input_number:
     mode: box
     icon: mdi:chart-timeline-variant-shimmer
 
+    
 sensor:
   - platform: filter
-    name: "Stroom Fase_1 (Gefilterd)"
-    entity_id: sensor.current_phase_1
+    name: "Vermogen Fase_1 (Gefilterd)"
+    entity_id: sensor.l1_fase_1
     filters:
       - filter: outlier
         window_size: 4
-        radius: 15.0
+        radius: 3000
 
   - platform: filter
-    name: "Stroom Fase_2 (Gefilterd)"
-    entity_id: sensor.current_phase_2
+    name: "Vermogen Fase_2 (Gefilterd)"
+    entity_id: sensor.l1_fase_2
     filters:
       - filter: outlier
         window_size: 4
-        radius: 15.0
+        radius: 3000
 
   - platform: filter
-    name: "Stroom Fase_3 (Gefilterd)"
-    entity_id: sensor.current_phase_3
+    name: "Vermogen Fase_3 (Gefilterd)"
+    entity_id: sensor.l1_fase_3
     filters:
       - filter: outlier
         window_size: 4
-        radius: 15.0
+        radius: 3000
