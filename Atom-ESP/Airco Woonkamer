@@ -1,0 +1,304 @@
+substitutions:
+  name: "atom-s3"
+  friendly_name: "Airco Woonkamer"
+  clim_name: Airco Woonkamer
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2025.11.0
+  #name_add_mac_suffix: true
+  project:
+    name: esphome.clim_and_nt_proxy
+    version: "25.12.7"
+
+esp32:
+#  board: esp32-s3-devkitc-1
+
+  board: m5stack-atom
+  #variant: ESP32S3
+  framework:
+    #type: arduino
+    type: esp-idf
+    version: recommended
+    #version: 5.4.0
+  #flash_size: 8MB
+
+debug:
+  update_interval: 5s
+
+# Enable logging
+logger:
+  #hardware_uart: USB_CDC  # USB serial on S3; use UART1 if CN105 is on UART0 (see #725)
+  hardware_uart: UART1
+  baud_rate: 0
+  level: DEBUG
+  logs:
+    EVT_SETS: DEBUG
+    WIFI: INFO
+    MQTT: INFO
+    WRITE_SETTINGS: INFO
+    SETTINGS: DEBUG
+    STATUS: INFO
+    CN105Climate: WARN
+    CN105: INFO
+    climate: DEBUG
+    sensor: WARN
+    chkSum: INFO
+    WRITE: DEBUG
+    READ: DEBUG
+    ACK: INFO
+    REMOTE_TEMP: DEBUG
+    Header: INFO
+    Decoder: INFO
+    CONTROL_WANTED_SETTINGS: INFO
+    control: INFO
+    UPDT_ITVL: DEBUG
+    CYCLE: WARN
+    esp32_ble_tracker: INFO
+    esp32_ble_client: INFO
+    esp-idf: INFO
+    OPERATING_STATUS: DEBUG
+    # Nouveaux tags pour HEAT_COOL / AUTO dual setpoint
+    HEAT_COOL: DEBUG # Traces détaillées consigne glissante et mode AUTO/HEAT_COOL
+    DUAL_SP: DEBUG # Traces dual setpoint AUTO mode
+    TEMP_SENSOR: INFO
+    UARTFix: WARN
+
+# mqtt, api, ota, wifi, captive, web, time
+api: 
+  encryption:
+    key: "HIPXCLuLVPn6jpmNamCL6H8pQmLY/vHGMDcKt8omu9s="
+  actions:    
+    - action: reboot
+      then:
+        - logger.log: "Bezig met opnieuw opstarten...."
+        - lambda: |-
+            esp_restart();
+    - action: set_remote_temperature
+      variables:
+        temperature: float
+      then:
+        - lambda: 'id(atoms3_clim).set_remote_temperature(temperature);'
+
+    - action: use_internal_temperature
+      then:
+        - lambda: 'id(atoms3_clim).set_remote_temperature(0);'
+    
+
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# Enable fallback hotspot (captive portal) in geval we geen wifi connectie hebben met de AP.
+  ap:
+    ssid: ${name}
+    password: "f5NQHwl4U8e1"
+
+
+captive_portal:
+
+#improv_serial:
+
+web_server:
+  port: 80
+  auth:
+    username: rients
+    password: !secret atom_s3__web_password
+
+time:
+  platform: homeassistant
+  id: ha_time
+
+
+# configure esp bluetooth proxy
+
+          
+
+bluetooth_proxy:
+  active: true          # default: true (Enables proxying active GATT connections to BLE device)
+  cache_services: true  # default: true (Enables caching GATT services in NVS flash storage)
+  connection_slots: 3   # default: 3 (The maximum number of BLE connection slots to use)
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: true        # default: true (Sends scan requests to get additional device data)
+    interval: 320ms     # default: 320 (ms) – Time between scan windows
+    window: 30ms        # default: 30 (ms) – Time actively listening during each interval (must be ≤ interval)
+    duration: 5min      # default: 5min – Length of a scan cycle (ignored if continuous: true)
+    continuous: true    # default: true – Scan continuously instead of in timed cycles
+
+# Gebruik de GPIO39 pin als een knop met een debounce van 50ms.
+
+# cn105 mitsubishi climate config
+# includes diagnostic sensors
+
+sensor:
+  # # Sensors with general information.
+  - platform: template
+    name: "dg_uart_connected"
+    entity_category: DIAGNOSTIC
+    lambda: |-
+      return (bool) id(atoms3_clim).isUARTReady_();
+    update_interval: 30s
+
+  - platform: template
+    name: "dg_complete_cycles"
+    entity_category: DIAGNOSTIC
+    accuracy_decimals: 0
+    lambda: |-
+      return (unsigned long) id(atoms3_clim).nbCompleteCycles_;
+    update_interval: 60s
+
+  - platform: template
+    name: "dg_total_cycles"
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    lambda: |-
+      return (unsigned long) id(atoms3_clim).nbCycles_;
+    update_interval: 60s
+  - platform: template
+    name: "dg_nb_hp_connections"
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    lambda: |-
+      return (unsigned int) id(atoms3_clim).nbHeatpumpConnections_;
+    update_interval: 60s
+
+  - platform: template
+    name: "dg_complete_cycles_percent"
+    id: complete_cycles_percent
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    entity_category: DIAGNOSTIC
+    lambda: |-      
+      unsigned long nbCompleteCycles = id(atoms3_clim).nbCompleteCycles_;
+      unsigned long nbCycles = id(atoms3_clim).nbCycles_;
+      if (nbCycles == 0) {
+        return 0.0;
+      }
+      return (float) nbCompleteCycles / nbCycles * 100.0;
+    update_interval: 60s
+
+  - platform: debug
+    free:
+      name: "Heap Free"
+    # fragmentation:
+    #   name: "Heap Fragmentation"
+    # block:
+    #   name: "Heap Max Block"
+    loop_time:
+      name: "Loop Time"
+    # psram:
+    #   name: "Free PSRAM"
+
+
+  # Uptime sensor.
+  - platform: uptime
+    name: ${name} Uptime
+
+  # WiFi Signal sensor.
+  - platform: wifi_signal
+    id: wifi_signal_dbm
+    name: ${name} WiFi Signal
+    update_interval: 60s
+
+  - platform: homeassistant
+    id: ha_cdeg_sejour_et_cuisine
+    entity_id: sensor.temperature_sejour
+    internal: true
+
+
+text_sensor:
+  # Expose ESPHome version as sensor.
+  - platform: version
+    name: ${name} ESPHome Version
+  # Expose WiFi information as sensors.
+  - platform: wifi_info
+    ip_address:
+      name: ${name} IP
+      id: wifi_ip  # ID pour référence dans l'écran
+    ssid:
+      name: ${name} SSID
+      id: wifi_ssid  # ID pour référence dans l'écran
+    bssid:
+      name: ${name} BSSID
+      id: wifi_bssid  # ID pour référence dans l'écran
+
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+# external_components:
+#   - source: github://echavet/MitsubishiCN105ESPHome
+#     refresh: 0s
+external_components:
+- source: github://echavet/MitsubishiCN105ESPHome
+
+uart:
+  id: HP_UART
+  baud_rate: 2400
+  tx_pin: GPIO26
+  rx_pin: GPIO32
+  #debug:
+    
+
+climate:
+  - platform: cn105
+    name: ${clim_name}
+    id: "atoms3_clim"
+    uart_id: HP_UART
+    compressor_frequency_sensor:
+      name: Compressor frequency
+    input_power_sensor:
+      name: Input power
+    #kwh_sensor:
+    #  name: Energy usage
+    #runtime_hours_sensor:
+    #  name: Runtime hours
+
+    #outside_air_temperature_sensor:
+    #  name: ${name} Outside air temperature
+    vertical_vane_select:
+      name: Orientation Fan Vertikaal
+    target_humidity_sensor:
+      name: "Target Humidity"
+    #horizontal_vane_select:
+    #  name: Orientation Fan Horizontaal
+    #isee_sensor:
+    #  name: ISEE Sensor
+    auto_sub_mode_sensor:
+      name: auto-submode sensor
+    sub_mode_sensor:
+      name: submode sensor
+    stage_sensor:
+      name: stage sensor
+    error_code_sensor:
+      name: error code
+    remote_temperature_source:
+      sensor_id: ha_cdeg_sejour_et_cuisine
+    remote_temperature_timeout: 60min
+    update_interval: 3500ms # shouldn't be less than 1 second
+    debounce_delay: 100ms # delay to prevent bouncing
+    connection_bootstrap_delay: 24s # delay to wait for the ESP32 to boot up and stabilize the WiFi connection
+    hp_uptime_connection_sensor:
+      name: ${name} HP Uptime Connection
+      update_interval: 30s
+    supports:
+      mode: [COOL, HEAT, FAN_ONLY, DRY]
+      fan_mode: [AUTO, QUIET, LOW, MEDIUM, HIGH]
+      swing_mode: ["OFF", VERTICAL]
+      dual_setpoint: false
+    visual:
+      min_temperature: 17
+      max_temperature: 28
+      temperature_step:
+        target_temperature: 0.5
+        current_temperature: 0.1
+
