@@ -5,7 +5,9 @@
 #
 substitutions:
 
-  device_name: "atom-zolder"
-  friendly_name: Atom-Zolder
+  device_name: "atom-woonkamer-2"
+  internal_name: "Woonk-Airco"
+  friendly_name: Airco
 
 <<: !include includes/atom-lite-bt.yaml
+#<<: !include includes/atom-lite-climate.yaml
