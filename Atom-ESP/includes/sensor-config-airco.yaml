@@ -1,0 +1,133 @@
+
+sensor:
+  # # Sensors with general information.
+  - platform: template
+    name: "dg_uart_connected"
+    entity_category: DIAGNOSTIC
+    lambda: |-
+      return (bool) id(atoms3_clim).isUARTReady_();
+    update_interval: 30s
+
+  - platform: template
+    name: "dg_complete_cycles"
+    entity_category: DIAGNOSTIC
+    accuracy_decimals: 0
+    lambda: |-
+      return (unsigned long) id(atoms3_clim).nbCompleteCycles_;
+    update_interval: 60s
+
+  - platform: template
+    name: "dg_total_cycles"
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    lambda: |-
+      return (unsigned long) id(atoms3_clim).nbCycles_;
+    update_interval: 60s
+  - platform: template
+    name: "dg_nb_hp_connections"
+    accuracy_decimals: 0
+    entity_category: DIAGNOSTIC
+    lambda: |-
+      return (unsigned int) id(atoms3_clim).nbHeatpumpConnections_;
+    update_interval: 60s
+
+  - platform: template
+    name: "dg_complete_cycles_percent"
+    id: complete_cycles_percent
+    unit_of_measurement: "%"
+    accuracy_decimals: 1
+    entity_category: DIAGNOSTIC
+    lambda: |-      
+      unsigned long nbCompleteCycles = id(atoms3_clim).nbCompleteCycles_;
+      unsigned long nbCycles = id(atoms3_clim).nbCycles_;
+      if (nbCycles == 0) {
+        return 0.0;
+      }
+      return (float) nbCompleteCycles / nbCycles * 100.0;
+    update_interval: 60s
+
+  - platform: debug
+    free:
+      name: "Heap Free"
+    # fragmentation:
+    #   name: "Heap Fragmentation"
+    # block:
+    #   name: "Heap Max Block"
+    loop_time:
+      name: "Loop Time"
+    # psram:
+    #   name: "Free PSRAM"
+
+
+  # Uptime sensor.
+  - platform: uptime
+    name: ${device_name} Uptime
+
+  # WiFi Signal sensor.
+  - platform: wifi_signal
+    id: wifi_signal_dbm
+    name: ${device_name} WiFi Signal
+    update_interval: 60s
+
+  - platform: homeassistant
+    id: ha_cdeg_sejour_et_cuisine
+    entity_id: sensor.temperature_sejour
+    internal: true
+
+
+text_sensor:
+  # Expose ESPHome version as sensor.
+  - platform: version
+    name: ${device_name} ESPHome Version
+  # Expose WiFi information as sensors.
+  - platform: wifi_info
+    ip_address:
+      name: ${device_name} IP
+      id: wifi_ip  
+    ssid:
+      name: ${device_name} SSID
+      id: wifi_ssid  
+    bssid:
+      name: ${device_name} BSSID
+      id: wifi_bssid  
+
+  - platform: debug
+    device:
+      name: "Device Info"
+    reset_reason:
+      name: "Reset Reason"
+
+  # Tekst Sensor
+  - platform: text
+    name: Status
+    source_id: my_text
+    icon: "mdi:alpha-i-circle-outline"
+  
+text:
+  - platform: template
+    id: my_text
+    name: "Tekst Sensor"
+    optimistic: true
+    min_length: 0
+    max_length: 100
+    mode: text
+    icon: "mdi:cursor-text"
+
+light:
+  - platform: esp32_rmt_led_strip
+    channel_colors: GRB
+    pin: GPIO27       # Dit is de pin voor de RGB LED
+    num_leds: 1
+    chipset: SK6812   
+    name: "Atom RGB Licht"
+    id: atom_light
+    restore_mode: RESTORE_DEFAULT_OFF
+    effects:
+      - random:
+          name: "Willekeurig"
+          transition_length: 1s
+          update_interval: 1s
+
+#remote_transmitter:
+#  pin: GPIO12
+#  carrier_duty_percent: 50%

@@ -1,0 +1,14 @@
+          
+
+bluetooth_proxy:
+  active: true          # default: true (Enables proxying active GATT connections to BLE device)
+  cache_services: true  # default: true (Enables caching GATT services in NVS flash storage)
+  connection_slots: 3   # default: 3 (The maximum number of BLE connection slots to use)
+
+esp32_ble_tracker:
+  scan_parameters:
+    active: true        # default: true (Sends scan requests to get additional device data)
+    interval: 320ms     # default: 320 (ms) – Time between scan windows
+    window: 30ms        # default: 30 (ms) – Time actively listening during each interval (must be ≤ interval)
+    duration: 5min      # default: 5min – Length of a scan cycle (ignored if continuous: true)
+    continuous: true    # default: true – Scan continuously instead of in timed cycles

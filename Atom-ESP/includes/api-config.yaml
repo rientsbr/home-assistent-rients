@@ -1,0 +1,19 @@
+  encryption:
+    key: !secret atom__encryption_key
+  actions:    
+    - action: reboot
+      then:
+        - logger.log: "Bezig met opnieuw opstarten...."
+        - lambda: |-
+            esp_restart();
+
+#    - action: set_remote_temperature
+#      variables:
+#        temperature: float
+#      then:
+#        - lambda: 'id(atoms3_clim).set_remote_temperature(temperature);'
+#
+#    - action: use_internal_temperature
+#      then:
+#        - lambda: 'id(atoms3_clim).set_remote_temperature(0);'
+#

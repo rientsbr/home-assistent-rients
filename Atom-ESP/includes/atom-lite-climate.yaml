@@ -1,0 +1,85 @@
+# Gemeenscahppelijke deel ATOM
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  min_version: 2025.11.0
+  #name_add_mac_suffix: true
+
+# We gebruiken de M5 Atom ESP32 bord maar wel met de nieuwste framework.
+esp32:
+  board: m5stack-atom
+  framework:
+    type: esp-idf
+    advanced:
+      sram1_as_iram: true
+
+debug:
+  update_interval: 5s
+
+# Enable logging
+logger:
+  #hardware_uart: USB_CDC  # USB serial on S3; use UART1 if CN105 is on UART0 (see #725)
+#  hardware_uart: UART1
+  baud_rate: 0
+  # hardware_uart: UART1  # Uncomment on ESP8266 *and* ESP32 if UART0 is used by CN105 (see #725)
+  level: INFO
+  logs:
+    EVT_SETS: INFO
+    WIFI: INFO
+    MQTT: INFO
+    WRITE_SETTINGS: INFO
+    SETTINGS: INFO
+    STATUS: INFO
+    # CN105 connection/bootstrap diagnostics (UART init + CONNECT handshake)
+    CN105_CONN: INFO
+    CN105Climate: WARN
+    CN105: INFO
+    climate: WARN
+    sensor: WARN
+    chkSum: INFO
+    WRITE: WARN
+    READ: WARN
+    Header: INFO
+    Decoder: INFO
+    CONTROL_WANTED_SETTINGS: INFO
+# Swap the above settings with these debug settings for development or troubleshooting
+#  level: DEBUG
+#  logs:
+#    EVT_SETS : DEBUG
+#    WIFI : INFO
+#    MQTT : INFO
+#    WRITE_SETTINGS : DEBUG
+#    SETTINGS : DEBUG
+#    STATUS : INFO
+#    CN105Climate: WARN
+#    CN105: DEBUG
+#    climate: WARN
+#    sensor: WARN
+#    chkSum : INFO
+#    WRITE : WARN
+#    READ : WARN
+#    Header: INFO
+#    Decoder : DEBUG
+#    CONTROL_WANTED_SETTINGS: DEBUG
+
+
+packages:
+  ha: !include ha-integration-config.yaml
+  binary_sensor: !include binary-sensor-config.yaml
+  bt_proxy: !include bt-proxy-config.yaml
+  sensor-config: !include sensor-config-airco.yaml
+  climate: !include climate-config.yaml
+
+# Restart & Safe Mode Buttons
+button:
+  - platform: safe_mode
+    id: button_safe_mode
+    name: Safe Mode Boot
+
+  - platform: factory_reset
+    id: factory_reset_btn
+    name: Factory reset
+
+
+
