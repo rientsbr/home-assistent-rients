@@ -1,3 +1,5 @@
+#
+# Slimmemeter implementatie voor ESPHome met de Zuidwijk slimmemeter+ 
 ---
 substitutions:
   device_name: slimmelezer
@@ -97,57 +99,86 @@ sensor:
   - platform: dsmr
     energy_delivered_tariff1:
       name: "Energy Consumed Tariff 1"
+      filters:
+        - or:
+            - throttle: 5min          # Stuurt sowieso elke 5 minuten de huidige stand door...
+            - delta: 0.001  
     energy_delivered_tariff2:
       name: "Energy Consumed Tariff 2"
+      filters:
+        - or:
+            - throttle: 5min          # Stuurt sowieso elke 5 minuten de huidige stand door...
+            - delta: 0.001 
     energy_returned_tariff1:
       name: "Energy Produced Tariff 1"
+      filters:
+        - or:
+            - throttle: 5min          # Stuurt sowieso elke 5 minuten de huidige stand door...
+            - delta: 0.001 
     energy_returned_tariff2:
       name: "Energy Produced Tariff 2"
+      filters:
+        - or:
+            - throttle: 5min          # Stuurt sowieso elke 5 minuten de huidige stand door...
+            - delta: 0.001 
     power_delivered:
       name: "Power Consumed"
       accuracy_decimals: 3
     power_returned:
       name: "Power Produced"
       accuracy_decimals: 3
-    electricity_failures:
-      name: "Electricity Failures"
-      icon: mdi:alert
-    electricity_long_failures:
-      name: "Long Electricity Failures"
-      icon: mdi:alert
-    voltage_l1:
-      name: "Voltage Phase 1"
-    voltage_l2:
-      name: "Voltage Phase 2"
-    voltage_l3:
-      name: "Voltage Phase 3"
+#    electricity_failures:
+#      name: "Electricity Failures"
+#      icon: mdi:alert
+#    electricity_long_failures:
+#      name: "Long Electricity Failures"
+#      icon: mdi:alert
+#    voltage_l1:
+#      name: "Voltage Phase 1"
+#    voltage_l2:
+#      name: "Voltage Phase 2"
+#    voltage_l3:
+#      name: "Voltage Phase 3"
     current_l1:
       name: "Current Phase 1"
-      filters: 
-        - lambda: |-
-            if (x> 35.0) {
-            ESP_LOGW("filter", "Stroom Fase 1 te Hoog: %.2f", x);
-            return{};
-            }
-            return{x};
+      accuracy_decimals: 1
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
+            - delta: 1.0  
+        # 2. Filter eventuele uitschieter
+#        - median:
+#            window_size: 5
+#            send_every: 1
+        # 3. Begrens de waarde tussen 0 en 25 A
+#        - clamp:
+#            min_value: 0.0
+#            max_value: 35.0
+
     current_l2:
       name: "Current Phase 2"
-      filters: 
-        - lambda: |-
-            if (x> 35.0) {
-            ESP_LOGW("filter", "Stroom Fase 2 te Hoog: %.2f", x);
-            return{};
-            }
-            return{x};
+      accuracy_decimals: 1
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
+            - delta: 1.0  
+
     current_l3:
       name: "Current Phase 3"
-      filters: 
-        - lambda: |-
-            if (x> 35.0) {
-            ESP_LOGW("filter", "Stroom Fase 3 te Hoog: %.2f", x);
-            return{};
-            }
-            return{x};
+      accuracy_decimals: 1
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
+            - delta: 1.0  
+        # 2. Filter eventuele uitschieter
+#        - median:
+#            window_size: 5
+#            send_every: 1
+        # 3. Begrens de waarde tussen 0 en 25 A
+#        - clamp:
+#            min_value: 0.0
+#            max_value: 35.0
+            
     power_delivered_l1:
       name: "Power Consumed Phase 1"
       accuracy_decimals: 3
