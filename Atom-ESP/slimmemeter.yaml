@@ -124,9 +124,17 @@ sensor:
     power_delivered:
       name: "Power Consumed"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.050             # ...maar update direct bij een verandering van 50 Watt (0.050 kW) of meer!
     power_returned:
       name: "Power Produced"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.050             # ...maar update direct bij een verandering van 50 Watt (0.050 kW) of meer!
 #    electricity_failures:
 #      name: "Electricity Failures"
 #      icon: mdi:alert
@@ -182,6 +190,11 @@ sensor:
     power_delivered_l1:
       name: "Power Consumed Phase 1"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
 #      filters: 
 #        - lambda: |-
 #            if (x> 5.75) {
@@ -191,6 +204,11 @@ sensor:
     power_delivered_l2:
       name: "Power Consumed Phase 2"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
 #      filters: 
 #        - lambda: |-
 #            if (x> 5.75) {
@@ -200,6 +218,11 @@ sensor:
     power_delivered_l3:
       name: "Power Consumed Phase 3"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
 #      filters: 
 #        - lambda: |-
 #            if (x> 5.75) {
@@ -209,14 +232,34 @@ sensor:
     power_returned_l1:
       name: "Power Produced Phase 1"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
     power_returned_l2:
       name: "Power Produced Phase 2"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
     power_returned_l3:
       name: "Power Produced Phase 3"
       accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
     gas_delivered:
       name: "Gas Consumed"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle: 1h            # Stuurt sowieso elk uur de huidige stand door...
+            - delta: 0.001            # ...maar update direct zodra er exact 1 liter (0.001 m³) gas is verbruikt!
   - platform: uptime
     name: "SlimmeLezer Uptime"
   - platform: wifi_signal
