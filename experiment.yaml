@@ -1,0 +1,2836 @@
+kiosk_mode:
+  non_admin_settings:
+    kiosk: true
+    ignore_entity_settings: true
+  entity_settings:
+    - entity:
+        input_boolean.kiosk_mode: 'on'
+      hide_header: true
+      hide_sidebar: true
+    - entity:
+        input_boolean.kiosk_mode: 'off'
+      hide_header: false
+      hide_sidebar: false
+views:
+  - title: Home-New
+    path: home-new
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            primary: 'Today: {{ states(''sensor.afvalwijzer_today'')|capitalize }}'
+            secondary: ''
+            icon: |-
+              {% if is_state('sensor.afvalwijzer_today', 'gft') %}
+                mdi:food-apple
+              {% elif is_state('sensor.afvalwijzer_today', 'papier') %}
+                mdi:newspaper-variant-multiple-outline
+              {% elif is_state('sensor.afvalwijzer_today', 'restafval') %}
+                mdi:delete
+              {% elif is_state('sensor.afvalwijzer_today', 'pd') %}
+                mdi:delete
+              {% else %}
+                mdi:delete-empty
+              {% endif %}
+            entity: sensor.afvalwijzer_today
+            tap_action:
+              action: none
+            picture: >-
+              {% if is_state('sensor.afvalwijzer_today', 'gft') %}
+                /local/afvalwijzer/gft.png
+              {% elif is_state('sensor.afvalwijzer_today', 'papier') %}
+                /local/afvalwijzer/papier.png
+              {% elif is_state('sensor.afvalwijzer_today', 'restafval') %}
+                /local/afvalwijzer/restafval.png
+              {% elif is_state('sensor.afvalwijzer_today', 'pd') %}
+                /local/afvalwijzer/plastic.png
+              {% elif is_state('sensor.afvalwijzer_today', 'kerstbomen,
+              restafval') %}
+                /local/afvalwijzer/restafval.png
+              {% else %}
+                /local/afvalwijzer/kliko.png
+              {% endif %}
+            double_tap_action:
+              action: perform-action
+              perform_action: input_boolean.turn_on
+              data: {}
+              target:
+                entity_id: input_boolean.thrash_collected
+            layout_options:
+              grid_columns: full
+              grid_rows: 1
+            visibility:
+              - condition: state
+                entity: sensor.afvalwijzer_today
+                state_not: Geen
+              - condition: state
+                entity: input_boolean.thrash_collected
+                state: 'off'
+            color: |-
+              {% if is_state('sensor.afvalwijzer_today', 'gft') %}
+                green
+              {% elif is_state('sensor.afvalwijzer_today', 'papier') %}
+                blue
+              {% elif is_state('sensor.afvalwijzer_today', 'restafval') %}
+                grey
+              {% elif is_state('sensor.afvalwijzer_today', 'pd') %}
+                orange
+              {% else %}
+                grey
+              {% endif %}
+            features_position: bottom
+          - type: custom:mushroom-template-card
+            primary: '{{ states(''sensor.anniversary_text'') }}'
+            secondary: ''
+            icon: mdi:party-popper
+            grid_options:
+              columns: full
+            visibility:
+              - condition: state
+                entity: sensor.anniversary_day
+                state: 'True'
+            color: yellow
+            features_position: bottom
+            card_mod:
+              style: |
+                ha-state-icon {
+                  {{ 'animation: bounce 1s linear infinite;' }}
+                }
+                @keyframes bounce {
+                  0%, 10%, 50%, 80%, 100% {transform: translateY(0); } 
+                  40% { transform: translateY(-1.2px) rotate(5deg); } 
+                  60% { transform: translateY(-1.1px) rotate(-4deg); } 
+                }
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-template-card
+                primary: Music
+                icon: mdi:radio
+                tap_action:
+                  action: navigate
+                  navigation_path: sonos
+                layout_options:
+                  grid_columns: 1
+                  grid_rows: 2
+                color: blue
+                vertical: true
+                features_position: bottom
+              - type: custom:mushroom-template-card
+                primary: Lights
+                icon: mdi:lightbulb-on
+                layout: vertical
+                icon_color: amber
+                tap_action:
+                  action: navigate
+                  navigation_path: /dashboard-tablet/lights
+                layout_options:
+                  grid_columns: 1
+                  grid_rows: 2
+                card_mod:
+                  style: |
+                    ha-state-icon {
+                      {{ 'animation: illumination 2s infinite;' }}
+                    }
+                    @keyframes illumination {
+                      80% { clip-path: polygon(0% 99%, 20% 55%, 22% 37%, 39% 20%, 61% 21%, 77% 35%, 79% 57%, 99% 100%); }
+                    }
+              - type: custom:mushroom-template-card
+                primary: Secure
+                icon: mdi:cctv
+                layout: vertical
+                icon_color: green
+                tap_action:
+                  action: navigate
+                  navigation_path: /dashboard-tablet/security
+                layout_options:
+                  grid_columns: 1
+                  grid_rows: 2
+              - type: custom:mushroom-template-card
+                primary: Stats
+                icon: mdi:chart-line
+                tap_action:
+                  action: navigate
+                  navigation_path: stats
+                layout_options:
+                  grid_columns: 1
+                  grid_rows: 2
+                color: purple
+                vertical: true
+                features_position: bottom
+              - type: custom:mushroom-template-card
+                primary: House
+                icon: mdi:home
+                tap_action:
+                  action: navigate
+                  navigation_path: house
+                layout_options:
+                  grid_columns: 1
+                  grid_rows: 2
+                color: yellow
+                vertical: true
+                features_position: bottom
+          - type: horizontal-stack
+            cards:
+              - type: custom:mushroom-person-card
+                entity: person.anita
+                fill_container: true
+                layout: horizontal
+                icon_type: entity-picture
+                visibility:
+                  - condition: state
+                    entity: person.anita
+                    state: home
+              - type: custom:mushroom-person-card
+                entity: person.rients
+                icon_type: entity-picture
+                layout: horizontal
+                visibility:
+                  - condition: state
+                    entity: person.rients
+                    state: home
+                fill_container: true
+          - type: custom:mushroom-title-card
+            title: Rooms
+            title_tap_action:
+              action: none
+            subtitle_tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            secondary: '{{ state_attr(''climate.woonkamer'',''current_temperature'') }}°C'
+            icon: mdi:sofa
+            entity: light.woonkamer_2
+            tap_action:
+              action: navigate
+              navigation_path: livingroom
+            icon_color: |-
+              {% if is_state('light.beneden', 'on') %}
+                amber
+              {% endif %}
+            double_tap_action:
+              action: toggle
+            primary: Woonkamer
+          - type: custom:mushroom-template-card
+            primary: Kitchen
+            secondary: '{{ state_attr(''climate.gang'',''current_temperature'') }}°C'
+            icon: mdi:chef-hat
+            entity: light.kitchen_spots
+            tap_action:
+              action: navigate
+              navigation_path: kitchen
+            icon_color: |-
+              {% if is_state('light.keuken', 'on') %}
+                amber
+              {% endif %}
+            double_tap_action:
+              action: toggle
+          - type: custom:mushroom-template-card
+            primary: Office
+            secondary: '{{ states(''sensor.office_multi_sensor_temperature'') }}°C'
+            icon: mdi:chair-rolling
+            entity: light.office
+            tap_action:
+              action: navigate
+              navigation_path: office
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.office', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Scullery
+            secondary: '{{ states(''sensor.scullery_temperature'') }}°C'
+            icon: mdi:washing-machine
+            entity: light.scullery
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-tablet/scullery
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.scullery', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Hall
+            secondary: >-
+              {{ state_attr('climate.hall_downstairs','current_temperature')
+              }}°C
+            icon: mdi:door
+            entity: light.hall
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-tablet/hall
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.hall', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Bedroom
+            secondary: '{{ state_attr(''climate.bedroom'',''current_temperature'') }}°C'
+            icon: mdi:bed-king
+            entity: light.bedroom
+            tap_action:
+              action: navigate
+              navigation_path: bedroom
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.bedroom', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Daan
+            secondary: '{{ state_attr(''climate.daan'',''current_temperature'') }}°C'
+            icon: mdi:human-male
+            entity: light.daan
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-tablet/daan
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.daan', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Floor
+            secondary: '{{ state_attr(''climate.floor'',''current_temperature'') }}°C'
+            icon: mdi:human-female
+            entity: light.aqara_smart_wall_switch
+            tap_action:
+              action: navigate
+              navigation_path: floor
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.aqara_smart_wall_switch', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Bathroom
+            secondary: '{{ state_attr(''climate.bathroom'',''current_temperature'') }}°C'
+            icon: mdi:shower
+            entity: light.bathroom_spots
+            tap_action:
+              action: navigate
+              navigation_path: bathroom
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.bathroom_spots', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Attic
+            secondary: '{{ state_attr(''climate.attic'',''current_temperature'') }}°C'
+            icon: mdi:home-roof
+            entity: climate.attic
+            tap_action:
+              action: navigate
+              navigation_path: attic
+            double_tap_action:
+              action: toggle
+          - type: custom:mushroom-template-card
+            primary: Wardrobe
+            secondary: '{{ state_attr(''climate.wardrobe'',''current_temperature'') }}°C'
+            icon: mdi:hanger
+            entity: climate.wardrobe
+            tap_action:
+              action: navigate
+              navigation_path: wardrobe
+            double_tap_action:
+              action: toggle
+          - type: custom:mushroom-template-card
+            primary: Toilet
+            secondary: '{{ state_attr(''climate.toilet'',''current_temperature'') }}°C'
+            icon: mdi:toilet
+            entity: light.toilet
+            tap_action:
+              action: navigate
+              navigation_path: toilet
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.toilet', 'on') %}
+                amber
+              {% endif %}
+          - type: custom:mushroom-template-card
+            primary: Garden
+            secondary: '{{ states(''sensor.br_temperature'') }}°C'
+            icon: mdi:flower
+            entity: light.garden
+            tap_action:
+              action: navigate
+              navigation_path: garden
+            double_tap_action:
+              action: toggle
+            icon_color: |-
+              {% if is_state('light.garden', 'on') %}
+                amber
+              {% endif %}
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+      - type: grid
+        cards:
+          - clock_style: analog
+            clock_size: small
+            show_seconds: true
+            no_background: false
+            type: clock
+            visibility:
+              - condition: screen
+                media_query: '(min-width: 768px)'
+            face_style: markers
+            border: false
+            ticks: hour
+            seconds_motion: continuous
+          - type: markdown
+            content: >-
+              {% set Weekdays =
+              ["Maandag","Dinsdag","Woensdag","Donderdag","Vrijdag","Zaterdag","Zondag"]
+              %} 
+
+               ## <center>{{Weekdays[now().weekday()] }} {{ now().strftime('%d/%m/%Y') }}
+               </center>
+            visibility:
+              - condition: screen
+                media_query: '(min-width: 768px)'
+            grid_options:
+              columns: 6
+              rows: 2
+          - entities:
+              - entity: calendar.rients_marianto_nl
+                accent_color: '#1e88e5'
+                label: 👨‍⚕️
+              - entity: calendar.regio_uh
+                accent_color: '#43a047'
+              - entity: calendar.regio_uh_bestuur
+                accent_color: '#D170DE'
+            compact_events_to_show: 8
+            show_empty_days: true
+            split_multiday_events: true
+            title: 📅 Upcoming events
+            vertical_line_width: 5px
+            today_indicator: dot
+            event_background_opacity: 15
+            show_progress_bar: true
+            show_single_allday_time: false
+            weather:
+              position: date
+              date:
+                show_conditions: true
+                show_high_temp: true
+                show_low_temp: false
+                icon_size: 14px
+                font_size: 12px
+                color: var(--primary-text-color)
+              event:
+                show_conditions: true
+                show_temp: true
+                icon_size: 14px
+                font_size: 12px
+                color: var(--primary-text-color)
+            tap_action:
+              action: expand
+            refresh_interval: 15
+            refresh_on_navigate: false
+            type: custom:calendar-card-pro
+            row_spacing: 10px
+            horizontal_line_color: '#343434'
+            max_events_to_show: 8
+            visibility:
+              - condition: screen
+                media_query: '(min-width: 768px)'
+          - type: thermostat
+            entity: climate.zolder
+        column_span: 1
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            secondary: '{{ states(''sensor.netto_power'') }} Watt'
+            icon: mdi:power-plug
+            entity: sensor.netto_power
+            tap_action:
+              action: more-info
+            primary: ''
+            layout_options:
+              grid_columns: 4
+              grid_rows: 2
+            color: |-
+              {% if states('sensor.netto_power') | int < 300 %}
+                green
+              {% elif states('sensor.netto_power') | int < 1000 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            vertical: true
+            features_position: bottom
+            card_mod:
+              style: |
+                ha-card {
+                  --secondary: 20px;
+                }
+          - type: custom:mushroom-template-card
+            primary: Gas
+            secondary: '{{ states(''sensor.zonneplan_p1_gas_consumption_today'') }} m³'
+            icon: mdi:gas-burner
+            entity: sensor.zonneplan_p1_gas_consumption_today
+            icon_color: >-
+              {% if states('sensor.zonneplan_p1_gas_consumption_today') | int <
+              5 %}
+                green
+              {% elif states('sensor.zonneplan_p1_gas_consumption_today') | int
+              < 10 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            layout: vertical
+            tap_action:
+              action: more-info
+            fill_container: false
+            card_mod:
+              style: |
+                ha-card {
+                  --card-secondary-font-size: 20px;
+                }
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: custom:mushroom-template-card
+            primary: Electricity
+            secondary: '{{ states(''sensor.zonneplan_netto_consumption_today'') }} kWh'
+            icon: mdi:flash
+            entity: sensor.zonneplan_netto_consumption_today
+            icon_color: >-
+              {% if states('sensor.zonneplan_netto_consumption_today') | int < 6
+              %}
+                green
+              {% elif states('sensor.zonneplan_netto_consumption_today') | int <
+              10 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            layout: vertical
+            tap_action:
+              action: more-info
+            fill_container: false
+            card_mod:
+              style: |
+                ha-card {
+                  --card-secondary-font-size: 20px;
+                }
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: custom:mushroom-template-card
+            primary: Water
+            secondary: >-
+              {{ (states('sensor.daily_water') |float(0) * 1000) | round(0)}}
+              liter
+            icon: mdi:water
+            entity: sensor.daily_water
+            icon_color: |-
+              {% if states('sensor.daily_water') | float < 0.2 %}
+                green
+              {% elif states('sensor.daily_water') | float < 0.3 %}
+                orange
+              {% else %}
+                red
+              {% endif %}
+            layout: vertical
+            tap_action:
+              action: more-info
+            fill_container: false
+            card_mod:
+              style: |
+                ha-card {
+                  --card-secondary-font-size: 20px;
+                }
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: custom:mushroom-template-card
+            primary: 'Lowest: € {{ states(''sensor.zonneplan_lowest_price'')|round(2) }}'
+            secondary: at {{ states('sensor.zonneplan_cheapest_time') }}
+            icon: mdi:currency-eur
+            entity: sensor.lowest_price_electricity
+            icon_color: blue
+            layout: vertical
+            tap_action:
+              action: more-info
+            fill_container: false
+            card_mod:
+              style: |
+                ha-card {
+                  --card-secondary-font-size: 20px;
+                }
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: gauge
+            entity: sensor.solar_energy_expected
+            name: Energy Score
+            needle: true
+            severity:
+              green: 70
+              yellow: 30
+              red: 0
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: custom:mushroom-template-card
+            primary: >-
+              Costs € {{
+              '{:,.2f}'.format(states('sensor.total_energy_score_cost') | float)
+              }}
+            secondary: >-
+              Pot. Savings € {{
+              states('sensor.total_energy_score_potential_savings') }}
+            icon: mdi:currency-eur
+            entity: sensor.total_energy_score_cost
+            icon_color: amber
+            layout: vertical
+            tap_action:
+              action: more-info
+            fill_container: false
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: custom:apexcharts-card
+            graph_span: 36h
+            show:
+              last_updated: true
+            experimental:
+              color_threshold: true
+            header:
+              title: Energy price today (€/kWh) - Zonneplan
+              show: true
+              show_states: true
+              colorize_states: true
+            span:
+              start: day
+            now:
+              show: true
+              label: Now
+            series:
+              - entity: sensor.l1_fase_1
+                color: green
+                type: column
+                show:
+                  extremas: true
+                  in_header: raw
+                color_threshold:
+                  - value: 0
+                    color: blue
+                  - value: 0.2
+                    color: lightgreen
+                  - value: 0.25
+                    color: green
+                  - value: 0.3
+                    color: greenyellow
+                  - value: 0.35
+                    color: yellow
+                  - value: 0.4
+                    color: orange
+                  - value: 0.45
+                    color: red
+                float_precision: 2
+                data_generator: |
+                  return entity.attributes.times.map((time, index) => {
+                    return [new Date(time).getTime(), entity.attributes.prices[index]];
+                  });
+            yaxis:
+              - decimals: 2
+                apex_config:
+                  tickAmount: 5
+        visibility:
+          - condition: screen
+            media_query: '(min-width: 768px)'
+    badges:
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |2-
+                {% if is_state('input_boolean.mail_arrived', 'on') %}
+                  mdi:mailbox
+                {% else %}
+                  mdi:mailbox-open-up-outline
+                {% endif %}
+        color: |2-
+                {% if is_state('input_boolean.mail_arrived', 'on') %}
+                  yellow
+                {% else %}
+                  grey
+                {% endif %}
+        double_tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.mail_arrived
+        visibility:
+          - condition: state
+            entity: input_boolean.mail_arrived
+            state: 'on'
+        card_mod:
+          style: |
+            ha-state-icon {
+              {{ 'animation: bounce 1s linear infinite;' if is_state('input_boolean.mail_arrived', 'on') }}
+            }
+            @keyframes bounce {
+              0%, 10%, 50%, 80%, 100% {transform: translateY(0); } 
+              40% { transform: translateY(-1.2px) rotate(5deg); } 
+              60% { transform: translateY(-1.1px) rotate(-4deg); } 
+            }
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |2-
+                {% if is_state('input_boolean.package_arrived', 'on') %}
+                  mdi:package-variant-closed-check
+                {% else %}
+                  mdi:package-variant-closed
+                {% endif %}
+        color: |2-
+                {% if is_state('input_boolean.package_arrived', 'on') %}
+                  yellow
+                {% else %}
+                  grey
+                {% endif %}
+        double_tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.package_arrived
+        visibility:
+          - condition: state
+            entity: input_boolean.package_arrived
+            state: 'on'
+        card_mod:
+          style: |
+            ha-state-icon {
+              {{ 'animation: bounce 1s linear infinite;' if is_state('input_boolean.package_arrived', 'on') }}
+            }
+            @keyframes bounce {
+              0%, 10%, 50%, 80%, 100% {transform: translateY(0); } 
+              40% { transform: translateY(-1.2px) rotate(5deg); } 
+              60% { transform: translateY(-1.1px) rotate(-4deg); } 
+            }
+      - type: custom:mushroom-template-badge
+        content: '{{ states(''sensor.fire_tablet_battery'')}} %'
+        icon: |2-
+                {% set batterylevel = states('sensor.fire_tablet_battery') | round(0) |
+                int // 10 * 10 %}
+
+                {% if batterylevel == 100 %}
+                  mdi:battery
+                {% elif batterylevel == 0 %}
+                  mdi:battery-low
+                {% else %}
+                  mdi:battery-{{batterylevel}}
+                {% endif %}
+        color: |2-
+                {% set batterylevel = states('sensor.fire_tablet_battery') | round(0) |
+                int // 10 * 10 %}
+
+                {% if batterylevel >= 60 %}
+                  light-green
+                {% elif batterylevel >= 30 %}
+                  orange
+                {% else %}
+                  red
+                {% endif %}
+        label: ''
+        visibility:
+          - condition: screen
+            media_query: '(min-width: 768px)'
+          - condition: state
+            entity: binary_sensor.fire_tablet_plugged_in
+            state: 'on'
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% set pluggedin = states('binary_sensor.fire_tablet_plugged_in' ) %}
+                {% if pluggedin == 'on' %}
+                  mdi:power-plug
+                {% else %}
+                  mdi:power-plug-off
+                {% endif %}
+        color: |2-
+                {% set pluggedin = states('binary_sensor.fire_tablet_plugged_in' ) %}
+                {% if pluggedin == 'on' %}
+                  light-green
+                {% else %}
+                  grey
+                {% endif %}
+        entity: switch.sw_plug_5
+        double_tap_action:
+          action: toggle
+        visibility:
+          - condition: screen
+            media_query: '(min-width: 768px)'
+          - condition: state
+            entity: binary_sensor.fire_tablet_plugged_in
+            state: 'on'
+        card_mod:
+          style: |
+            ha-state-icon {
+              {{ 'animation: pulse 3s linear infinite; transform-origin: 50% 60%;'}}       
+              }
+              @keyframes pulse {
+                0% { transform: scale(1); }
+                10% { transform: scale(1.1); }
+                17% { transform: scale(1.05); }
+                33% { transform: scale(1.25); }
+                60% { transform: scale(1); }
+              }
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    cards: []
+    background:
+      opacity: 33
+      alignment: center
+      size: cover
+      repeat: repeat
+      attachment: fixed
+      image: /api/image/serve/23c29c874c04f7221b0b0e724303c47e/original
+  - theme: Backend-selected
+    title: Lights
+    path: lights
+    icon: ''
+    type: sections
+    layout:
+      grid-template-columns: 30% auto 30%
+      grid-template-rows: auto
+      grid-template-areas: |
+        "header header header"
+        ". messages ."
+        "left middle right"
+        "footer footer footer"
+      mediaquery:
+        '(max-width: 400px)':
+          grid-template-columns: 100%
+          grid-template-areas: |
+            "header"
+            "messages"
+            "left"
+            "right"
+            "middle"
+            "footermobile"
+        '(max-width: 800px)':
+          grid-template-columns: 50% 50%
+          grid-template-areas: |
+            "header header"
+            "messages messages"
+            "left right"
+            "middle middle"
+            "footer footer"
+    badges:
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: |-
+          {% if is_state('input_boolean.light_status', 'on') %}
+            {{ states('sensor.number_lights_on') }} Lights On
+          {% else %}
+            All Lights are off
+          {% endif %}
+        icon: |-
+          {% if is_state('input_boolean.light_status', 'on') %}
+            mdi:lightbulb-group
+          {% else %}
+            mdi:lightbulb-group-off
+          {% endif %}
+        color: |-
+          {% if is_state('input_boolean.light_status', 'on') %}
+            amber
+          {% else %}
+            grey
+          {% endif %}
+        label: ''
+        tap_action:
+          action: toggle
+        hold_action:
+          action: toggle
+    cards:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: action
+            icon_color: light-green
+            icon: mdi:home
+            tap_action:
+              action: navigate
+              navigation_path: home
+        alignment: start
+        view_layout:
+          grid-area: header
+        card_mod:
+          style:
+            mushroom-template-chip:nth-child(5)$: |
+              ha-state-icon {
+                {{ 'animation: bounce 1s linear infinite;' if is_state('input_boolean.mail_arrived', 'on') }}
+              }
+              @keyframes bounce {
+                0%, 10%, 50%, 80%, 100% {transform: translateY(0); } 
+                40% { transform: translateY(-1.2px) rotate(5deg); } 
+                60% { transform: translateY(-1.1px) rotate(-4deg); } 
+              }
+            mushroom-template-chip:nth-child(10)$: |
+              ha-state-icon {
+                {{ 'animation: blink 1.5s linear infinite;' if is_state('binary_sensor.fire_tablet_plugged_in', 'on') }}
+              }
+              @keyframes blink {
+                100% {opacity: 0;}
+              }
+    sections:
+      - type: grid
+        cards:
+          - type: custom:auto-entities
+            card:
+              type: grid
+              square: false
+              columns: 1
+            card_param: cards
+            filter:
+              include:
+                - domain: light
+                  options:
+                    type: custom:mushroom-light-card
+                    use_light_color: true
+                    show_brightness_control: true
+                    show_color_temp_control: true
+                    show_color_control: true
+                    tap_action:
+                      action: toggle
+                    hide_state: false
+                    collapsible_controls: true
+                    layout: default
+                    fill_container: false
+              exclude:
+                - state: unavailable
+                - state: 'off'
+                - label: group
+                - label: dummylight
+                - hidden_by: user
+            sort:
+              method: name
+              reverse: false
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Lights'
+      layout: center
+      badges_position: top
+    max_columns: 1
+  - title: Bedroom
+    path: bedroom
+    type: sections
+    max_columns: 2
+    sections:
+      - type: grid
+        cards:
+          - type: tile
+            entity: device_tracker.shellypmminig3_ecda3bc75918
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.shelly_meter_slaapkamer_energy
+            name: Slaapkamer
+            vertical: false
+            features_position: bottom
+          - type: custom:mushroom-template-card
+            primary: Remote Battery
+            secondary: '{{ states(''sensor.bedroom_remote_battery'') | int }}%'
+            icon: >
+              {% set batterylevel = states('sensor.bedroom_remote_battery')| int
+              // 10 * 10 %}
+
+              {% if batterylevel == 100 %}
+                mdi:battery
+              {% elif batterylevel == 0 %}
+                mdi:battery-low
+              {% else %}
+                mdi:battery-{{batterylevel}}
+              {% endif %}
+            icon_color: >-
+              {% set batterylevel = states('sensor.bedroom_remote_battery') |
+              int %}
+
+              {% if batterylevel > 60 %}
+                 light-green
+              {% elif batterylevel > 20 %}
+                 orange
+              {% else %}
+                 red
+              {% endif %}
+            entity: sensor.bedroom_remote_battery
+            tap_action:
+              action: none
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+          - type: heading
+            icon: mdi:robot-vacuum
+            heading: Vacuum
+            heading_style: subtitle
+      - type: grid
+        cards:
+          - type: thermostat
+            entity: climate.kamer_voor
+            layout_options:
+              grid_columns: 2
+              grid_rows: 6
+            name: Heating
+          - graph: line
+            hours_to_show: 24
+            type: sensor
+            entity: sensor.binnen_binnen_binnen_slaapkamer_temperature
+            detail: 1
+            name: Temperature
+            layout_options:
+              grid_columns: 4
+              grid_rows: 3
+      - type: grid
+        cards: []
+    badges:
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+    cards: []
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Bedroom'
+      layout: center
+      badges_position: top
+  - title: Office
+    path: office
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:lamps
+            heading: Lights
+            heading_style: subtitle
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.number_lights_on_in_office
+                color: amber
+                visibility:
+                  - condition: numeric_state
+                    entity: sensor.number_lights_on_in_office
+                    above: 0
+                tap_action:
+                  action: perform-action
+                  perform_action: light.turn_off
+                  target:
+                    entity_id:
+                      - light.office
+                      - light.office_entrance_lights
+                      - light.office_hallway_spots
+                      - light.office_back_spots
+                  data: {}
+            tap_action:
+              action: none
+          - type: tile
+            entity: scene.office_scene_cosy
+            name: Cosy
+            color: red
+            tap_action:
+              action: toggle
+            grid_options:
+              columns: 4
+              rows: 2
+            vertical: true
+          - type: tile
+            entity: scene.office_scene_cold
+            name: Cold
+            color: blue
+            tap_action:
+              action: toggle
+            grid_options:
+              columns: 4
+              rows: 2
+            vertical: true
+          - type: tile
+            entity: scene.office_scene_green
+            name: Green
+            color: light-green
+            tap_action:
+              action: toggle
+            vertical: true
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: tile
+            entity: light.office_front
+          - type: tile
+            entity: light.office_back
+          - type: tile
+            entity: light.office_ceiling_spots
+            name: Ceiling
+          - type: tile
+            entity: light.office_led_strip
+            name: LED Strip
+          - type: tile
+            entity: light.lidl_moodlight
+            name: Moodlight
+          - type: tile
+            entity: light.office_spots
+            name: Bureau Spots
+          - type: tile
+            entity: light.office_hallway_spots
+            name: Hallway
+          - type: tile
+            entity: light.office_entrance_lights
+            name: Entrance
+          - type: tile
+            entity: light.office_back_spots
+            name: Back Spots
+          - type: tile
+            entity: switch.sw_plug_1
+            name: Air Purifier
+            icon: mdi:air-purifier
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:thermostat
+            heading: Climate
+            heading_style: subtitle
+            entities:
+              - show_state: true
+                show_icon: true
+                entity: sensor.office_front_temperature
+                color: state
+          - type: thermostat
+            entity: climate.office_front
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+            name: Office Front
+          - type: thermostat
+            entity: climate.office_back
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+            name: Office Back
+          - type: thermostat
+            entity: climate.ir_remote_air
+            name: Airconditioning
+            show_current_as_primary: false
+            features:
+              - type: climate-hvac-modes
+            grid_options:
+              columns: 6
+              rows: 4
+          - type: tile
+            entity: sensor.hub_3_tempsensor_temperature
+            name: Temp
+            grid_options:
+              columns: 3
+              rows: 2
+            vertical: true
+            features_position: bottom
+          - type: tile
+            name: Humidity
+            grid_options:
+              columns: 3
+              rows: 2
+            vertical: true
+            entity: sensor.hub_3_humisensor_humidity
+            features_position: bottom
+          - type: tile
+            entity: sensor.office_multi_sensor_pressure
+            name: Pressure
+            grid_options:
+              columns: 3
+              rows: 2
+            vertical: true
+          - type: tile
+            name: CO2
+            grid_options:
+              columns: 3
+              rows: 2
+            vertical: true
+            entity: sensor.switchbot_meter_pro_carbon_dioxide
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:music-box
+            heading: Music
+            heading_style: subtitle
+            entities:
+              - show_state: true
+                show_icon: true
+                entity: media_player.chromecast_audio
+                color: state
+          - type: custom:mini-media-player
+            entity: media_player.chromecast_audio
+            artwork: full-cover
+            source: full
+            sound_mode: full
+            info: scroll
+            background: /local/radio/radiobackground.jpg
+            shortcuts:
+              columns: 3
+              label: Spotify playlists...
+              buttons:
+                - type: script
+                  id: script.media_play_kink
+                  cover: /local/radio/icon_kink_dna.gif
+                - type: script
+                  id: script.media_play_studio_brussel
+                  cover: /local/radio/icon_studio_brussel.png
+                - type: script
+                  id: script.media_play_radio_veronica
+                  cover: /local/radio/icon_radio_veronica.png
+                - type: script
+                  id: script.media_play_radio_538
+                  cover: /local/radio/icon_radio_538.png
+                - type: script
+                  id: script.media_play_npo2
+                  cover: /local/radio/icon_npo2.png
+                - type: script
+                  id: script.media_play_3fm
+                  cover: /local/radio/icon_3FM.png
+              list:
+                - name: Favorites
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:2R71SG112xTB6T0uFdZWL0
+                    random_song: true
+                    shuffle: true
+                - name: Various
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:2HqtI8z9r10hEVmmegQQSs
+                    random_song: true
+                    shuffle: true
+                - name: Best of Trance
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:5JO7lvJ7NQaxj91Rb7NMZr
+                    random_song: true
+                    shuffle: true
+                - name: Metal
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:19DOf5kZ4arwpcHGEbSQ8H
+                    random_song: true
+                    shuffle: true
+                - name: Classic Rock
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:0JjsAnXGR3YPWHkuO0M1Ag
+                    random_song: true
+                    shuffle: true
+                - name: Sunday Morning
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:3QAtMxQPl8X13SelAGsA0x
+                    random_song: true
+                    shuffle: true
+                - name: Aemen
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:6Zh8Duv8Enc0YKIHuM47f4
+                    random_song: false
+                    shuffle: false
+            name: Harman Kardon
+            icon: mdi:radio
+            group: false
+            volume_stateless: false
+            toggle_power: false
+          - type: media-control
+            entity: media_player.nest_mini_office
+          - type: heading
+            icon: mdi:lock-outline
+            heading: Lock
+            heading_style: subtitle
+          - type: custom:mushroom-template-card
+            primary: Door Lock ({{states('lock.lock_ultra')|capitalize}})
+            icon: mdi:lock
+            entity: lock.lock_ultra
+            tap_action:
+              action: toggle
+            double_tap_action:
+              action: more-info
+            grid_options:
+              columns: full
+              rows: 1
+            secondary: 'Battery: {{ states(''sensor.lock_ultra_1d_battery'')}}%'
+            color: |-
+              {% if is_state('lock.lock_ultra', 'locked') %}
+                green
+              {% else %}
+                red
+              {% endif %}
+            features_position: bottom
+          - type: heading
+            icon: mdi:robot-vacuum
+            heading: Vacuum
+            heading_style: subtitle
+          - features:
+              - type: vacuum-commands
+                commands:
+                  - start_pause
+                  - return_home
+            type: tile
+            entity: vacuum.office_mini_robot_vacuum_k10_pro
+            icon: mdi:robot-vacuum
+            tap_action:
+              action: toggle
+            grid_options:
+              columns: full
+            features_position: inline
+            vertical: false
+          - type: heading
+            icon: mdi:window-closed
+            heading: Windows
+            heading_style: subtitle
+          - type: tile
+            entity: cover.office_covers
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+            features:
+              - type: cover-open-close
+              - type: cover-position
+          - type: custom:mushroom-template-card
+            primary: Covers Office
+            secondary: ''
+            icon: |-
+              {% if is_state('input_boolean.cover_automation_active', 'on') %}
+                mdi:check-circle-outline
+              {% else %}
+                mdi:cancel
+              {% endif %}
+            entity: input_boolean.cover_automation_active
+            tap_action:
+              action: toggle
+            hold_action:
+              action: toggle
+            grid_options:
+              columns: full
+              rows: 1
+            color: |-
+              {% if is_state('input_boolean.cover_automation_active', 'on') %}
+                green
+              {% else %}
+                red
+              {% endif %}
+            features_position: bottom
+          - type: heading
+            icon: mdi:motion-sensor
+            heading: Sensors
+            heading_style: subtitle
+          - type: custom:mushroom-template-card
+            primary: Office
+            secondary: >-
+              Triggered: {{ as_timestamp(
+              states.binary_sensor.office_motion.last_changed) |
+              timestamp_custom(' %H:%M',true | int) }}
+            icon: |-
+              {% if is_state('binary_sensor.office_motion','off') %}
+                mdi:motion-sensor-off
+              {% else %}
+                mdi:motion-sensor
+              {% endif %}
+            entity: binary_sensor.office_motion
+            icon_color: |-
+              {% if is_state('binary_sensor.office_motion','off') %}
+                grey
+              {% else %}
+                light-green
+              {% endif %}
+            tap_action:
+              action: none
+            card_mod:
+              style: |
+                ha-state-icon {
+                  {{ 'animation: clip 2s linear infinite;' if is_state('binary_sensor.office_motion', 'on') }}
+                }
+                @keyframes clip {
+                  50% { clip-path: polygon(0 0, 55% 0, 100% 100%, 0 100%); }
+                }
+          - type: tile
+            entity: sensor.office_light_sensor
+            grid_options:
+              columns: 6
+              rows: 1
+            color: yellow
+            vertical: false
+            features_position: bottom
+            name: Light Sensor
+          - type: tile
+            entity: sensor.office_cover_left_batterij
+          - type: tile
+            entity: sensor.office_cover_right_batterij
+            features_position: bottom
+            vertical: false
+    badges:
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:power
+        color: |-
+          {% if is_state('input_boolean.power_office', 'on') %}
+            light-green
+          {% else %}
+            grey
+          {% endif %}
+        tap_action:
+          action: toggle
+        entity: input_boolean.power_office
+        card_mod:
+          style: |
+            ha-state-icon {
+              {{ 'animation: pulse 3s linear infinite; transform-origin: 50% 60%;'  if is_state('input_boolean.power_office', 'on')}}       
+            }
+            @keyframes pulse {
+              0% { transform: scale(1); }
+              10% { transform: scale(1.1); }
+              17% { transform: scale(1.17); }
+              33% { transform: scale(1.25); }
+              60% { transform: scale(1); }
+            }
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:fan
+        color: |-
+          {% if is_state('input_boolean.airconditioning_mode_cool', 'on') %}
+            blue
+          {% else %}
+            light-blue
+          {% endif %}
+        entity: input_boolean.airconditioning_mode_cool
+        tap_action:
+          action: toggle
+        card_mod:
+          style: |
+            ha-state-icon {
+              {{ 'animation: rotation 1s linear infinite;' if is_state('input_boolean.airconditioning_mode_cool', 'on') }}
+            }
+            @keyframes rotation {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:fan
+        color: |-
+          {% if is_state('input_boolean.airconditioning_mode_heat', 'on') %}
+            red
+          {% else %}
+           amber
+          {% endif %}
+        entity: input_boolean.airconditioning_mode_heat
+        tap_action:
+          action: toggle
+        card_mod:
+          style: |
+            ha-state-icon {
+              {{ 'animation: rotation 1s linear infinite;' if is_state('input_boolean.airconditioning_mode_heat', 'on') }}
+            }
+            @keyframes rotation {
+              0% {
+                transform: rotate(0deg);
+              }
+              100% {
+                transform: rotate(360deg);
+              }
+            }
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Office'
+      layout: center
+      badges_position: top
+  - title: Livingroom
+    path: livingroom
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:lamps
+            heading: Lights
+            heading_style: subtitle
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.number_lights_on_in_livingroom
+                color: amber
+                visibility:
+                  - condition: numeric_state
+                    entity: sensor.number_lights_on_in_livingroom
+                    above: 0
+                tap_action:
+                  action: perform-action
+                  perform_action: light.turn_off
+                  target:
+                    entity_id: light.livingroom
+                  data: {}
+            tap_action:
+              action: none
+          - type: tile
+            entity: scene.livingroom_evening
+            name: Evening
+            color: red
+            tap_action:
+              action: toggle
+            vertical: true
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: tile
+            entity: scene.livingroom_day
+            name: Day
+            color: blue
+            tap_action:
+              action: toggle
+            vertical: true
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: tile
+            entity: scene.livingroom_watch_television
+            name: TV
+            color: orange
+            tap_action:
+              action: toggle
+            vertical: true
+            hide_state: false
+            grid_options:
+              columns: 4
+              rows: 2
+          - type: tile
+            entity: light.livingroom
+            name: Livingroom
+            layout_options:
+              grid_columns: full
+            vertical: false
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.livingroom_hue
+            name: Hue
+            features:
+              - type: light-brightness
+          - features:
+              - type: light-brightness
+            type: tile
+            entity: light.livingroom_couch
+            name: Couch
+          - type: tile
+            entity: light.livingroom_cupboard
+            name: Cupboard
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.livingroom_spot
+            name: Spot
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.shellydimmer2_e098069508de
+            features:
+              - type: light-brightness
+          - type: tile
+            entity: light.standing_lamp
+            grid_options:
+              columns: 6
+              rows: 2
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:thermostat
+            heading: Climate
+            heading_style: subtitle
+            entities:
+              - show_state: true
+                show_icon: true
+                entity: sensor.office_front_temperature
+                color: state
+          - type: thermostat
+            entity: climate.livingroom_wireless_sensor
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+            name: Livingroom
+          - graph: line
+            type: sensor
+            entity: sensor.livingroom_temperature
+            detail: 1
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+            name: Temperature
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:music-box
+            heading: Music
+            heading_style: subtitle
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: media_player.living_room
+                color: state
+          - type: custom:mini-media-player
+            entity: media_player.googlehome1277
+            artwork: full-cover
+            source: full
+            sound_mode: full
+            info: scroll
+            background: /local/radio/radiobackground.jpg
+            shortcuts:
+              columns: 3
+              label: Spotify playlists...
+              buttons:
+                - type: script
+                  id: script.media_play_kink
+                  cover: /local/radio/icon_kink_dna.gif
+                - type: script
+                  id: script.media_play_studio_brussel
+                  cover: /local/radio/icon_studio_brussel.png
+                - type: script
+                  id: script.media_play_radio_veronica
+                  cover: /local/radio/icon_radio_veronica.png
+                - type: script
+                  id: script.media_play_radio_538
+                  cover: /local/radio/icon_radio_538.png
+                - type: script
+                  id: script.media_play_npo2
+                  cover: /local/radio/icon_npo2.png
+                - type: script
+                  id: script.media_play_3fm
+                  cover: /local/radio/icon_3FM.png
+              list:
+                - name: Favorites
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:2R71SG112xTB6T0uFdZWL0
+                    random_song: true
+                    shuffle: true
+                - name: Various
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:2HqtI8z9r10hEVmmegQQSs
+                    random_song: true
+                    shuffle: true
+                - name: Best of Trance
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:5JO7lvJ7NQaxj91Rb7NMZr
+                    random_song: true
+                    shuffle: true
+                - name: Metal
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:19DOf5kZ4arwpcHGEbSQ8H
+                    random_song: true
+                    shuffle: true
+                - name: Classic Rock
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:0JjsAnXGR3YPWHkuO0M1Ag
+                    random_song: true
+                    shuffle: true
+                - name: Sunday Morning
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:3QAtMxQPl8X13SelAGsA0x
+                    random_song: true
+                    shuffle: true
+                - name: Aemen
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:6Zh8Duv8Enc0YKIHuM47f4
+                    random_song: false
+                    shuffle: false
+            name: Google Home Mini
+            icon: mdi:radio
+            group: false
+            volume_stateless: false
+            toggle_power: false
+          - type: tile
+            entity: media_player.dining_room
+            layout_options:
+              grid_columns: full
+            features:
+              - type: media-player-volume-slider
+          - type: tile
+            entity: media_player.living_room
+            layout_options:
+              grid_columns: full
+            features:
+              - type: media-player-volume-slider
+          - features:
+              - type: media-player-volume-slider
+            type: tile
+            entity: media_player.lg_webos_smart_tv
+            layout_options:
+              grid_columns: full
+          - type: tile
+            entity: media_player.appletv
+            layout_options:
+              grid_columns: full
+            features:
+              - type: media-player-volume-slider
+          - type: heading
+            icon: mdi:window-closed
+            heading: Windows
+            heading_style: subtitle
+          - features:
+              - type: cover-open-close
+            type: tile
+            entity: cover.cover_left
+            hide_state: true
+          - features:
+              - type: cover-open-close
+            type: tile
+            entity: cover.cover_right
+            hide_state: true
+    badges:
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Livingroom'
+      layout: center
+      badges_position: top
+  - title: Kitchen
+    path: kitchen
+    type: sections
+    max_columns: 3
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:lamps
+            heading: Lights
+            heading_style: subtitle
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: sensor.number_lights_on_in_kitchen
+                color: amber
+                visibility:
+                  - condition: numeric_state
+                    entity: sensor.number_lights_on_in_kitchen
+                    above: 0
+                tap_action:
+                  action: perform-action
+                  perform_action: light.turn_off
+                  target:
+                    entity_id: light.kitchen_spots
+                  data: {}
+            tap_action:
+              action: none
+          - features:
+              - type: light-brightness
+            type: tile
+            entity: light.kitchen_spots
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+            vertical: false
+          - type: tile
+            entity: light.aquariumlamp
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+          - type: heading
+            icon: mdi:motion-sensor
+            heading: Sensors
+            heading_style: subtitle
+          - type: custom:mushroom-template-card
+            primary: Motion
+            secondary: >-
+              Triggered: {{
+              as_timestamp(states.binary_sensor.kitchen_motion_sensor_occupancy.last_changed)
+              | timestamp_custom(' %H:%M',true | int)}}
+            icon: >-
+              {% if
+              is_state('binary_sensor.kitchen_motion_sensor_occupancy','off') %}
+                mdi:motion-sensor-off
+              {% else %}
+                mdi:motion-sensor
+              {% endif %}
+            entity: binary_sensor.kitchen_motion_sensor_occupancy
+            icon_color: >-
+              {% if
+              is_state('binary_sensor.kitchen_motion_sensor_occupancy','off') %}
+                grey
+              {% else %}
+                light-green
+              {% endif %}
+            tap_action:
+              action: none
+          - type: custom:mushroom-template-card
+            primary: Battery
+            secondary: '{{ states(''sensor.kitchen_motion_sensor_battery'') | int }}%'
+            icon: >
+              {% set batterylevel =
+              states('sensor.kitchen_motion_sensor_battery') | int // 10 * 10 %}
+
+              {% if batterylevel == 100 %}
+                mdi:battery
+              {% elif batterylevel == 0 %}
+                mdi:battery-low
+              {% else %}
+                mdi:battery-{{batterylevel}}
+              {% endif %}
+            icon_color: >-
+              {% set batterylevel =
+              states('sensor.kitchen_motion_sensor_battery') | int %}
+
+              {% if batterylevel > 60 %}
+                 light-green
+              {% elif batterylevel > 20 %}
+                 orange
+              {% else %}
+                 red
+              {% endif %}
+            entity: sensor.kitchen_motion_sensor_battery
+            tap_action:
+              action: none
+          - type: heading
+            icon: mdi:toggle-switch-outline
+            heading: Switches
+            heading_style: subtitle
+          - type: tile
+            entity: switch.sw_plug_5
+            name: Tablet
+            layout_options:
+              grid_columns: 2
+              grid_rows: 1
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:thermostat
+            heading: Climate
+            heading_style: subtitle
+            entities:
+              - show_state: true
+                show_icon: true
+                entity: sensor.office_front_temperature
+                color: state
+          - type: thermostat
+            entity: climate.livingroom_window_back
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+          - graph: line
+            type: sensor
+            entity: sensor.livingroom_temperature
+            detail: 1
+            layout_options:
+              grid_columns: 2
+              grid_rows: 4
+            name: Temperature
+      - type: grid
+        cards:
+          - type: heading
+            icon: mdi:music-box
+            heading: Music
+            heading_style: subtitle
+            badges:
+              - type: entity
+                show_state: true
+                show_icon: true
+                entity: media_player.kitchen
+                color: state
+          - type: custom:mini-media-player
+            entity: media_player.nest_hub_kitchen
+            artwork: full-cover
+            source: full
+            sound_mode: full
+            info: scroll
+            background: /local/radio/radiobackground.jpg
+            shortcuts:
+              columns: 3
+              label: Spotify playlists...
+              buttons:
+                - type: script
+                  id: script.media_play_kink
+                  cover: /local/radio/icon_kink_dna.gif
+                - type: script
+                  id: script.media_play_studio_brussel
+                  cover: /local/radio/icon_studio_brussel.png
+                - type: script
+                  id: script.media_play_radio_veronica
+                  cover: /local/radio/icon_radio_veronica.png
+                - type: script
+                  id: script.media_play_radio_538
+                  cover: /local/radio/icon_radio_538.png
+                - type: script
+                  id: script.media_play_npo2
+                  cover: /local/radio/icon_npo2.png
+                - type: script
+                  id: script.media_play_3fm
+                  cover: /local/radio/icon_3FM.png
+              list:
+                - name: Favorites
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:2R71SG112xTB6T0uFdZWL0
+                    random_song: true
+                    shuffle: true
+                - name: Various
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:2HqtI8z9r10hEVmmegQQSs
+                    random_song: true
+                    shuffle: true
+                - name: Best of Trance
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:5JO7lvJ7NQaxj91Rb7NMZr
+                    random_song: true
+                    shuffle: true
+                - name: Metal
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:19DOf5kZ4arwpcHGEbSQ8H
+                    random_song: true
+                    shuffle: true
+                - name: Classic Rock
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:0JjsAnXGR3YPWHkuO0M1Ag
+                    random_song: true
+                    shuffle: true
+                - name: Sunday Morning
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:3QAtMxQPl8X13SelAGsA0x
+                    random_song: true
+                    shuffle: true
+                - name: Aemen
+                  type: service
+                  id: spotcast.start
+                  data:
+                    device_name: Chromecast Audio
+                    uri: spotify:playlist:6Zh8Duv8Enc0YKIHuM47f4
+                    random_song: false
+                    shuffle: false
+            name: Nest Hub Kitchen
+            icon: mdi:radio
+            group: false
+            volume_stateless: false
+            toggle_power: false
+          - type: tile
+            entity: media_player.kitchen
+            layout_options:
+              grid_columns: full
+    badges:
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Kitchen'
+      layout: center
+      badges_position: top
+  - type: sections
+    max_columns: 2
+    title: Travel
+    path: travel
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Home to mygirlfriend
+            heading_style: subtitle
+          - type: tile
+            entity: sensor.icloud3_wazehist_track
+            name: Waze
+            color: amber
+            vertical: false
+            features_position: bottom
+          - type: history-graph
+            entities:
+              - entity: sensor.icloud3_wazehist_track
+    badges:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: back
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Travel'
+      layout: center
+      badges_position: top
+  - type: sections
+    max_columns: 1
+    title: News
+    path: news
+    sections:
+      - type: grid
+        cards:
+          - type: markdown
+            content: >
+              {% set titles = state_attr('sensor.rss_feed_items', 'titles') %}
+
+              {% set links = state_attr('sensor.rss_feed_items', 'links') %}
+
+              <ul>
+
+              {% for i in range(titles | length) %}
+                <li><h3><a href={{links[i]}}>{{titles[i]}}</a></h3></li> 
+              {% endfor %}
+
+              </ul>
+
+
+              <small>Last refreshed at {{
+              as_timestamp(states('sensor.rss_feed_items')) |
+              timestamp_custom('%d-%m-%Y - %H:%M', true) }}</small>
+    badges:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: back
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      layout: center
+      badges_position: top
+      card:
+        type: markdown
+        text_only: true
+        content: '## News'
+  - type: sections
+    max_columns: 2
+    title: Energy
+    path: energy
+    icon: ''
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Prices
+            heading_style: subtitle
+          - type: tile
+            entity: sensor.zonneplan_current_electricity_tariff
+            features_position: bottom
+            vertical: true
+            name: Electricity
+            color: amber
+          - type: tile
+            entity: sensor.zonneplan_current_gas_tariff
+            features_position: bottom
+            vertical: true
+            name: Gas
+            color: primary
+      - type: grid
+        cards:
+          - type: heading
+            heading: Electricity
+            heading_style: subtitle
+          - type: custom:power-flow-card
+            entities:
+              battery:
+                consumption: sensor.system_smart_home_junkie_sb_home_power
+                production: sensor.system_smart_home_junkie_sb_battery_power
+              battery_charge: sensor.system_smart_home_junkie_sb_state_of_charge
+              grid:
+                consumption: sensor.zonneplan_p1_electricity_consumption_today
+                production: sensor.zonneplan_p1_electricity_returned_today
+              solar: sensor.solaredge_production_energy
+          - type: tile
+            entity: sensor.system_smart_home_junkie_sb_battery_power
+            features_position: bottom
+            vertical: false
+            color: light-green
+            name: Battery power
+          - type: tile
+            entity: sensor.system_smart_home_junkie_sb_home_power
+            features_position: bottom
+            vertical: false
+            name: Battery To Home
+            color: green
+          - type: tile
+            entity: sensor.netto_power
+            features_position: bottom
+            vertical: false
+    badges:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: back
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    cards: []
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Energy'
+      layout: center
+      badges_position: top
+  - type: sections
+    max_columns: 2
+    title: Television
+    path: television
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Television
+            heading_style: title
+          - square: true
+            columns: 5
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: switch.harmonyhub_tv_kijken
+                name: TV
+                icon: mdi:television-classic
+                layout: vertical
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: light-blue
+              - type: custom:mushroom-entity-card
+                entity: switch.harmonyhub_apple_tv_kijken
+                name: AppleTV
+                icon: mdi:food-apple
+                layout: vertical
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: light-green
+              - type: custom:mushroom-entity-card
+                entity: switch.harmonyhub_bluray_kijken
+                name: BluRay
+                icon: mdi:disc
+                layout: vertical
+                secondary_info: none
+                icon_color: amber
+              - type: custom:mushroom-entity-card
+                entity: script.1588087064936
+                name: Pause
+                icon: mdi:pause-circle
+                layout: vertical
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: script.1588086837167
+                name: 'Off'
+                icon: mdi:power
+                layout: vertical
+                secondary_info: none
+                tap_action:
+                  action: toggle
+      - type: grid
+        cards:
+          - type: heading
+            heading: Dreamscreen
+            heading_style: title
+          - type: heading
+            icon: ''
+            heading: Input
+            heading_style: subtitle
+          - square: false
+            columns: 3
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_input_television
+                name: Television
+                layout: vertical
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: light-blue
+                icon: mdi:television-classic
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_input_movie
+                layout: vertical
+                name: Movie
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: light-green
+                icon: mdi:movie-roll
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_input_sound
+                layout: vertical
+                name: Music
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: amber
+                icon: mdi:music
+          - type: heading
+            icon: ''
+            heading: Mode
+            heading_style: subtitle
+          - square: false
+            columns: 5
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_mode_off
+                icon: mdi:power
+                layout: vertical
+                name: ' Power'
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: red
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_mode_video
+                icon: mdi:video
+                layout: vertical
+                name: Video
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: light-blue
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_mode_music
+                icon: mdi:music
+                layout: vertical
+                name: Music
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: light-green
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_mode_ambient
+                icon: mdi:television-ambient-light
+                layout: vertical
+                hide_icon: false
+                name: Ambient
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: amber
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_hdr_tone_remapping
+                layout: vertical
+                name: HDR
+                icon: mdi:hdr
+                fill_container: false
+                secondary_info: none
+                tap_action:
+                  action: toggle
+                icon_color: orange
+          - type: heading
+            icon: ''
+            heading: Scene
+            heading_style: subtitle
+          - square: false
+            columns: 3
+            type: grid
+            cards:
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_random
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_fire
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_twinkle
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_ocean
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_pride
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_july4
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_holiday
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_pop
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+              - type: custom:mushroom-entity-card
+                entity: switch.dreamscreen_scene_forest
+                use_entity_picture: true
+                hide_icon: false
+                fill_container: false
+                layout: vertical
+                primary_info: none
+                secondary_info: none
+                tap_action:
+                  action: toggle
+    badges:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: back
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      layout: center
+      badges_position: top
+      badges_wrap: wrap
+  - type: sections
+    max_columns: 1
+    title: Washing Machine
+    path: washing-machine
+    sections:
+      - type: grid
+        cards:
+          - type: tile
+            entity: sensor.washing_machine_power
+            features_position: bottom
+            vertical: true
+            grid_options:
+              columns: full
+          - type: tile
+            entity: input_datetime.washing_started
+            features_position: bottom
+            vertical: true
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: custom:state-switch
+            entity: template
+            template: >-
+              {% if as_timestamp(states('input_datetime.washing_stopped')) >
+              as_timestamp(states('input_datetime.washing_started')) %} true {%
+              else %} false {% endif %}
+            states:
+              'true':
+                type: custom:mushroom-template-card
+                primary: Washing Ended
+                secondary: >-
+                  {{  as_timestamp(states('input_datetime.washing_stopped')) |
+                  timestamp_custom('%B %d, %Y at %-I:%m %p')}}
+                icon: mdi:clock
+                icon_color: blue
+                layout: vertical
+                fill_container: true
+          - type: heading
+            icon: ''
+            heading_style: subtitle
+          - type: custom:state-switch
+            entity: template
+            template: >-
+              {% if as_timestamp(states('input_datetime.washing_stopped')) <
+              as_timestamp(states('input_datetime.washing_started')) %}
+                true
+              {% else %}
+                false
+              {% endif %}
+            states:
+              'true':
+                type: custom:mushroom-template-card
+                secondary: >-
+                  {{
+                  as_timestamp(states('input_datetime.washing_expected_time_to_stop'))
+                  | timestamp_custom(' %H:%M:%S ', True) }}
+                icon: mdi:clock
+                icon_color: blue
+                layout: vertical
+                fill_container: true
+                primary: Expected End Time
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: custom:state-switch
+            entity: template
+            template: >-
+              {% if (as_timestamp(states('input_datetime.washing_stopped')) <
+              as_timestamp(states('input_datetime.washing_started'))) and
+              (states('sensor.washing_machine_expected_time_left') | float(0) >
+              0 ) %}
+                true
+              {% else %}
+                false
+              {% endif %}
+            states:
+              'true':
+                type: custom:mushroom-template-card
+                primary: Expected time left
+                secondary: >-
+                  {{ (states('sensor.washing_machine_expected_time_left') |
+                  float| timestamp_custom(' %H:%M:%S ', False)) }}
+                icon: mdi:clock
+                entity: sensor.washing_machine_expected_time_left
+                icon_color: blue
+                fill_container: true
+                layout: vertical
+            grid_options:
+              columns: 6
+              rows: 2
+          - hours_to_show: 24
+            graph: line
+            type: sensor
+            entity: sensor.washing_machine_power
+            detail: 1
+          - hours_to_show: 24
+            graph: line
+            type: sensor
+            entity: sensor.washing_machine_energy
+            detail: 1
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Washing Machine'
+      layout: center
+      badges_position: top
+      badges_wrap: wrap
+    badges:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: back
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+  - type: sections
+    max_columns: 2
+    title: Air Quality
+    path: air-quality
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading: Current Air Quality
+          - type: gauge
+            entity: sensor.i_9psl_carbon_dioxide
+            severity:
+              green: 0
+              yellow: 1000
+              red: 2000
+            needle: true
+            max: 3000
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+            name: CO2
+          - type: gauge
+            entity: sensor.i_9psl_pm2_5
+            min: 0
+            max: 15
+            needle: true
+            severity:
+              green: 0
+              yellow: 5
+              red: 10
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+            name: PM2.5
+          - graph: line
+            type: sensor
+            entity: sensor.i_9psl_pm1
+            detail: 2
+            name: PM1
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            entity: sensor.i_9psl_pm10
+            detail: 2
+            name: PM10
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            entity: sensor.i_9psl_pm0_3
+            detail: 2
+            name: PM0.3 Count
+            layout_options:
+              grid_columns: 2
+              grid_rows: 2
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.i_9psl_voc_index
+            name: VOC Index
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            entity: sensor.i_9psl_nox_index
+            detail: 2
+            name: NOx Index
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            detail: 2
+            entity: sensor.i_9psl_temperature
+            name: Temperature
+            hours_to_show: 8
+          - graph: line
+            type: sensor
+            entity: sensor.i_9psl_humidity
+            detail: 2
+            hours_to_show: 8
+            name: Humidity
+      - type: grid
+        cards:
+          - type: heading
+            heading: Averages Last 24 Hours
+          - type: tile
+            entity: sensor.statistical_characteristic
+            color: light-green
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+          - type: tile
+            entity: sensor.average_pm2_5
+            color: light-green
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+          - type: tile
+            entity: sensor.average_pm1
+            color: light-green
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+          - type: tile
+            entity: sensor.average_pm10
+            color: light-green
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+          - type: tile
+            entity: sensor.average_pm0_3_count
+            color: light-green
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+          - type: tile
+            entity: sensor.average_voc_index
+            color: light-green
+            layout_options:
+              grid_columns: 4
+              grid_rows: 1
+    badges:
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: back
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: mdi:home
+        color: green
+        tap_action:
+          action: navigate
+          navigation_path: /dashboard-tablet/home-new
+      - type: custom:mushroom-template-badge
+        content: ''
+        icon: |-
+          {% if is_state('input_boolean.kiosk_mode','on') %}
+                  mdi:arrow-expand-vertical
+                {% else %}
+                  mdi:arrow-collapse-up
+                {% endif %}
+        color: light-green
+        tap_action:
+          action: perform-action
+          perform_action: input_boolean.toggle
+          target:
+            entity_id: input_boolean.kiosk_mode
+    header:
+      card:
+        type: markdown
+        text_only: true
+        content: '## Air Quality'
+      layout: center
+      badges_position: top
+      badges_wrap: wrap
