@@ -1,0 +1,19 @@
+alias: Verwarming normale mode (reset)
+description: ''
+mode: single
+triggers:
+  - entity_id:
+      - input_boolean.status_niet_thuis
+    from: 'on'
+    to: 'off'
+    trigger: state
+conditions:
+  - condition: state
+    entity_id: input_boolean.thermostaat_regelen
+    state: 'on'
+actions:
+  - data:
+      preset_mode: Reset
+    target:
+      entity_id: climate.palladiostraat
+    action: climate.set_preset_mode

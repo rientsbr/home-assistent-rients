@@ -1,0 +1,13 @@
+alias: 9 - IKEA Links
+description: ''
+triggers:
+  - topic: zigbee2mqtt/IKEA Schakelaar/action
+    payload: arrow_left_click
+    trigger: mqtt
+conditions: []
+actions:
+  - type: toggle
+    device_id: f1c0c51b4293284d9efa7858743c1a55
+    entity_id: 3f1750fdfb46a7bb0479963af88cbea2
+    domain: switch
+mode: single

@@ -1,0 +1,19 @@
+alias: Verwarming op ECO
+description: ''
+triggers:
+  - entity_id:
+      - input_boolean.status_niet_thuis
+    from: 'off'
+    to: 'on'
+    trigger: state
+conditions:
+  - condition: state
+    entity_id: input_boolean.thermostaat_regelen
+    state: 'on'
+actions:
+  - data:
+      preset_mode: away
+    target:
+      entity_id: climate.palladiostraat
+    action: climate.set_preset_mode
+mode: single

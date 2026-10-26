@@ -1,0 +1,33 @@
+alias: SlimmeMeter+ naar Domoticz Electra
+description: SlimmeMeter+ gegevens via MQTT naar Domoticz
+triggers:
+  - trigger: state
+    entity_id:
+      - sensor.energy_consumed_tariff_1
+      - sensor.energy_consumed_tariff_2
+      - sensor.energy_produced_tariff_1
+      - sensor.energy_produced_tariff_2
+      - sensor.power_consumed
+      - sensor.power_produced
+  - trigger: time_pattern
+    minutes: /1
+actions:
+  - action: mqtt.publish
+    data:
+      topic: domoticz/in
+      payload: |-
+        {
+          "idx": 1,
+          "nvalue": 0,
+          "svalue": "{{ (states('sensor.energy_consumed_tariff_1') | float(0) * 1000) | round(0) }};{{ (states('sensor.energy_consumed_tariff_2') | float(0) * 1000) | round(0) }};{{ (states('sensor.energy_produced_tariff_1') | float(0) * 1000) | round(0) }};{{ (states('sensor.energy_produced_tariff_2') | float(0) * 1000) | round(0) }};{{ states('sensor.power_consumed') | float(0) *1000 | round(0) }};{{ states('sensor.power_produced') | float(0) *1000| round(0) }}"
+        }
+  - action: mqtt.publish
+    data:
+      topic: domoticz/in
+      payload: |-
+        {
+          "idx": 14,
+          "nvalue": 0,
+          "svalue": "{{ states('sensor.current_phase_1') | float(0) }};{{ states('sensor.current_phase_2') | float(0) }};{{ states('sensor.current_phase_3') | float(0) }}"
+        }
+mode: restart

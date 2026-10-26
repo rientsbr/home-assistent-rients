@@ -1,0 +1,16 @@
+alias: Slimmemeter+ naar Momoticz Gas
+triggers:
+  - entity_id: sensor.gas_consumed
+    trigger: state
+actions:
+  - data:
+      topic: domoticz/in
+      payload: |
+        {
+          "command": "udevice",
+          "idx": 11,
+          "nvalue": 0,
+          "svalue": "{{ (states('sensor.gas_consumed') | float * 1000) | round(0) }}"
+        }
+      retain: false
+    action: mqtt.publish
