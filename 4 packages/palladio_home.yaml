@@ -30,7 +30,7 @@ template:
           {% set consumption = states('sensor.power_consumed_phase_2') | float(none) %}
           {% set production = states('sensor.power_produced_phase_2') | float(none) %}
           {{ (consumption - production) *1000 | round(2) }}
-          {{ (consumption) *1000 | round(2) }}
+
 
   - sensor:
       #
