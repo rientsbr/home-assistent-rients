@@ -1,0 +1,902 @@
+views:
+  - type: sections
+    path: ''
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: subtitle
+            heading: Status
+            badges: []
+            icon: mdi:list-status
+          - type: custom:bubble-card
+            card_type: sub-buttons
+            button_type: switch
+            sub_button:
+              main: []
+              bottom:
+                - name: Automatically grouped
+                  buttons_layout: inline
+                  group:
+                    - entity: sensor.p1_meter_power
+                      content_layout: icon-bottom
+                      fill_width: false
+                      name: P1
+                      state_content: state
+                    - entity: sensor.marstek_m1_battery_state_of_charge
+                      fill_width: false
+                      content_layout: icon-bottom
+                      name: Bat %
+                      state_content: state
+                    - entity: sensor.marstek_m1_ac_power
+                      fill_width: false
+                      name: Bat Charge
+                      content_layout: icon-bottom
+                      icon: mdi:battery-charging
+                      show_name: false
+                      force_icon: false
+                      show_icon: true
+                      state_background: true
+                      state_content: state
+                    - entity: sensor.l1_fase_1
+                      fill_width: false
+                      name: F1
+                      show_name: false
+                      content_layout: icon-bottom
+                      state_content: state
+                    - entity: sensor.l1_fase_2
+                      fill_width: false
+                      name: F2
+                      show_name: false
+                      content_layout: icon-bottom
+                      state_content: state
+                    - entity: sensor.l1_fase_3
+                      fill_width: false
+                      name: F3
+                      show_name: false
+                      content_layout: icon-bottom
+                      state_content: state
+                  justify_content: start
+            slider_fill_orientation: left
+            slider_value_position: right
+            entity: device_tracker.private_ble_device_09648c
+            rows: 0.938
+            hide_main_background: false
+            footer_mode: false
+            styles: |+
+              :host{
+                  --color-ok-icon: green ;
+                  --color-warning-icon: orange ;
+                  --color-alert-icon: red ;
+                  --color-ok: #85A408AA ;
+                  --color-warning: #E77910AA ;
+                  --color-alert: #CA3333AA ;
+                  --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+                  --color-notification-bubble: red;
+              }
+              .bubble-sub-button-1 {
+                background: ${hass.states['sensor.p1_meter_power'].state > 0 ? 'var(--color-ok)' 
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-2 {
+                background: ${hass.states['sensor.marstek_m1_battery_state_of_charge'].state > 25 ? 'var(--color-ok)' 
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-3 {
+                background: ${hass.states['sensor.marstek_m1_battery_power'].state > 0 ? 'var(--color-ok)' 
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-4 {
+                background: ${hass.states['sensor.l1_fase_1'].state >= 0 ? 'var(--color-ok)' 
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-5 {
+                background: ${hass.states['sensor.l1_fase_2'].state >= 0 ? 'var(--color-ok)' 
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-6 {
+                background: ${hass.states['sensor.l1_fase_3'].state >= 0 ? 'var(--color-ok)' 
+                  : 'var(--color-alert)'} !important;
+              }
+
+          - type: custom:bubble-card
+            card_type: button
+            entity: device_tracker.iphone_rients
+            button_type: state
+            card_layout: large
+            styles: |+
+              :host{
+                  --color-ok-icon: green ;
+                  --color-warning-icon: orange ;
+                  --color-alert-icon: red ;
+                  --color-ok: #85A408AA ;
+                  --color-warning: #E77910AA ;
+                  --color-alert: #CA3333AA ;
+                  --color-bar: ${state > 40 ? 'var(--color-ok)'
+                                 : state > 20 ? 'var(--color-warning)'
+                                 : 'var(--color-alert)'} ;
+                  --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+                  --color-notification-bubble: red;
+              }
+              .bubble-sub-button-1 {
+                background: ${hass.states['sensor.iphone_rients_battery'].state > 40 ? 'var(--color-ok)' 
+                  : hass.states['sensor.iphone_rients_battery'].state > 20 ? 'var(--color-warning)'
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-2 {
+                background: ${hass.states['sensor.watch_rients_battery'].state > 40 ? 'var(--color-ok)' 
+                  : hass.states['sensor.watch_rients_battery'].state > 20 ? 'var(--color-warning)'
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-3 {
+                background: var(--color-ok) !important;
+              }
+              #.bubble-button-card-container {
+              #  background: linear-gradient(
+              #  to right, 
+              #  var(--color-bar) 0%, 
+              #  var(--color-bar) ${Math.round(state)}%, 
+              #  var(--color-background) ${Math.round(state)}%,
+              #  var(--color-background) 100%
+              #) !important;
+              #}
+
+            grid_options:
+              columns: 12
+              rows: 1
+            sub_button:
+              main:
+                - entity: sensor.iphone_rients_battery
+                  name: iPhone
+                  show_name: false
+                  icon: mdi:phone-classic
+                  state_content: state
+                - entity: sensor.watch_rients_battery
+                  name: Watch
+                  icon: mdi:watch
+                  state_content: state
+                - show_name: false
+                  show_icon: false
+                  entity: sensor.1006381ee03fc933_area
+                  state_content: state
+              bottom: []
+            slider_fill_orientation: left
+            slider_value_position: right
+            name: Rients
+            state_content:
+              - state
+              - home_distance
+          - type: custom:bubble-card
+            card_type: button
+            entity: device_tracker.iphone_anita
+            button_type: state
+            card_layout: large
+            styles: |+
+              :host{
+                  --color-ok-icon: green ;
+                  --color-warning-icon: orange ;
+                  --color-alert-icon: red ;
+                  --color-ok: #85A408AA ;
+                  --color-warning: #E77910AA ;
+                  --color-alert: #CA3333AA ;
+                  --color-bar: ${state > 40 ? 'var(--color-ok)'
+                                 : state > 20 ? 'var(--color-warning)'
+                                 : 'var(--color-alert)'} ;
+                  --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+                  --color-notification-bubble: red;
+              }
+              .bubble-sub-button-1 {
+                background: ${hass.states['sensor.iphone_anita_battery'].state > 40 ? 'var(--color-ok)' 
+                  : hass.states['sensor.iphone_anita_battery'].state > 20 ? 'var(--color-warning)'
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-2 {
+                  background: ${hass.states['sensor.watch_anita_battery'].state > 40 ? 'var(--color-ok)' 
+                  : hass.states['sensor.watch_anita_battery'].state > 20 ? 'var(--color-warning)'
+                  : 'var(--color-alert)'} !important;
+              }
+                .bubble-sub-button-3 {
+                background: var(--color-ok) !important;
+              }
+              #.bubble-button-card-container {
+              #  background: linear-gradient(
+              #  to right, 
+              #  var(--color-bar) 0%, 
+              #  var(--color-bar) ${Math.round(state)}%, 
+              #  var(--color-background) ${Math.round(state)}%,
+              #  var(--color-background) 100%
+              #) !important;
+              #}
+
+            grid_options:
+              columns: 12
+              rows: 1
+            sub_button:
+              main:
+                - entity: sensor.iphone_anita_battery
+                  name: iPhone
+                  show_name: false
+                  icon: mdi:phone-classic
+                  state_content: state
+                - name: WATCH
+                  show_name: false
+                  show_icon: true
+                  entity: sensor.watch_anita_battery
+                  icon: mdi:watch
+                  state_content: state
+                - show_name: false
+                  show_icon: false
+                  entity: sensor.10063a1aa0cfebcb_area
+                  state_content: state
+              bottom: []
+            slider_fill_orientation: left
+            slider_value_position: right
+            name: Anita
+            state_content:
+              - state
+              - home_distance
+          - type: custom:bubble-card
+            card_type: pop-up
+            hash: '#popupzolder'
+            cards:
+              - type: custom:bubble-card
+                card_type: climate
+                sub_button:
+                  main:
+                    - name: HVAC modes menu
+                      select_attribute: hvac_modes
+                      state_background: false
+                      show_arrow: false
+                      sub_button_type: select
+                  bottom: []
+                entity: climate.zolder
+                show_attribute: true
+                attribute: current_temperature
+                styles: |-
+                  :host{
+                      --color-ok-icon: green ;
+                      --color-warning-icon: orange ;
+                      --color-alert-icon: red ;
+                      --color-ok: #85A408AA ;
+                      --color-warning: #E77910AA ;
+                      --color-alert: #CA3333AA ;
+                      --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+                      --color-notification-bubble: red;
+                  }
+
+                  ha-icon {
+                    color: ${hass.states['sensor.thermostaat_zolder'].state > 0  ? 'var(--color-warning)' 
+                      : 'var(--color-ok)'} !important;
+                  }
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: binary_sensor.motion_zolder_motion
+                name: Zolder
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: binary_sensor.motion_kantoor_motion
+                name: Kantoor
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.shelly_zolderburo_zigbee
+                name: Buro Zolder
+                icon: mdi:desk
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.shelly_tvzolder_zigbee
+                name: TV Zolder
+                icon: mdi:television-box
+            button_type: name
+          - type: custom:bubble-card
+            card_type: pop-up
+            hash: '#popupwoonkamer'
+            cards:
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: binary_sensor.beweging_woonkamer_presence
+                name: Kamer
+                icon: mdi:motion-sensor
+              - type: custom:bubble-card
+                card_type: climate
+                sub_button:
+                  main:
+                    - name: HVAC modes menu
+                      select_attribute: hvac_modes
+                      state_background: false
+                      show_arrow: false
+                      sub_button_type: select
+                  bottom: []
+                entity: climate.woonkamer
+                show_state: false
+                show_attribute: true
+                attribute: current_temperature
+                scrolling_effect: true
+                show_icon: true
+                force_icon: false
+                show_name: true
+                show_last_changed: false
+                show_last_updated: false
+                hide_temperature: false
+                state_color: false
+                styles: |-
+                  :host{
+                      --color-ok-icon: green ;
+                      --color-warning-icon: orange ;
+                      --color-alert-icon: red ;
+                      --color-ok: #85A408AA ;
+                      --color-warning: #E77910AA ;
+                      --color-alert: #CA3333AA ;
+                      --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+                      --color-notification-bubble: red;
+                  }
+
+                  ha-icon {
+                    color: ${hass.states['sensor.thermostaat_woonkamer'].state > 0  ? 'var(--color-warning)' 
+                      : 'var(--color-ok)'} !important;
+                  }
+              - type: custom:bubble-card
+                card_type: media-player
+                sub_button:
+                  main: []
+                  bottom: []
+                entity: media_player.woonkamer
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.schemerlamp
+                icon: mdi:desk-lamp
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.schemerlamp_anita
+                icon: mdi:desk-lamp
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.shelly_tvmeubel
+                name: TV Meubel
+                icon: mdi:television
+            button_type: name
+            show_header: true
+          - type: custom:bubble-card
+            card_type: pop-up
+            hash: '#popupalgemeen'
+            cards:
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.shelly_usb_backup
+                name: Backup
+                icon: mdi:usb-port
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: input_boolean.thermostaat_regelen
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: input_boolean.status_niet_thuis
+              - type: custom:bubble-card
+                card_type: button
+                button_type: switch
+                entity: switch.keuken_shelly_1pm_boyler
+                name: Boyler
+            button_type: name
+            show_header: true
+          - type: custom:bubble-card
+            card_type: separator
+            grid_options:
+              columns: 24
+              rows: 0.8
+          - type: map
+            entities:
+              - entity: device_tracker.iphone_rients
+              - entity: device_tracker.iphone_anita
+            theme_mode: auto
+          - entities:
+              - entity: calendar.regio_uh_bestuur
+                name: Werk & Afspraken
+                color: '#ff5722'
+                prefix: 💼
+                show_location: true
+              - entity: calendar.rients_marianto_nl
+                name: Thuis & Kinderen
+                prefix: 🏡
+                show_description: true
+                accent_color: home-assistant
+              - entity: calendar.verjaardagen
+                name: Verjaardagen
+                color: '#e91e63'
+                prefix: 🎉
+                all_day_only: true
+            days_to_show: 14
+            compact_days_to_show: 5
+            compact_events_to_show: 6
+            show_empty_days: true
+            title: 📅 Gezinsagenda & Planning
+            type: custom:calendar-card-pro
+            view_mode: columns
+            show_weeks: false
+            hide_past_events: true
+        column_span: 2
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: title
+            heading: Snelkoppeling
+            icon: mdi:alert-box-outline
+          - type: tile
+            entity: sensor.3822ve_16_gft
+            name: GFT
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.3822ve_16_plastic
+            name: PMD
+            vertical: false
+            features_position: bottom
+          - type: tile
+            entity: sensor.3822ve_16_papier
+            name: Papier
+            vertical: false
+            features_position: bottom
+          - type: custom:mushroom-template-card
+            secondary: '{{ state_attr("climate.woonkamer","current_temperature")}}°C'
+            icon: mdi:sofa
+            entity: light.woonkamer
+            primary: Woonkamer
+            tap_action:
+              action: navigate
+              navigation_path: '#popupwoonkamer'
+            color: |-
+              {% if is_state("light.woonkamer", "on")%}
+                amber
+              {%endif%}
+            features_position: bottom
+            multiline_secondary: false
+            grid_options:
+              columns: 24
+              rows: 1
+          - type: custom:mushroom-template-card
+            secondary: |-
+              {{ state_attr("climate.zolder","current_temperature")}}°C
+              {{ state_attr("climate.zolder","current_temperature")}}°C
+            icon: mdi:home-roof
+            primary: Zolder
+            tap_action:
+              action: navigate
+              navigation_path: '#popupzolder'
+            color: |-
+              {% if is_state("light.woonkamer", "on")%}
+                amber
+              {%endif%}
+            features_position: bottom
+            grid_options:
+              columns: 24
+              rows: 1
+            entity: switch.shelly_zolderburo_zigbee
+          - type: custom:mushroom-template-card
+            secondary: '{{ state_attr("climate.gang","current_temperature")}}°C'
+            icon: mdi:ab-testing
+            primary: Algemeen
+            tap_action:
+              action: navigate
+              navigation_path: '#popupalgemeen'
+            color: |-
+              {% if is_state("light.woonkamer", "on")%}
+                amber
+              {%endif%}
+            features_position: bottom
+            grid_options:
+              columns: 24
+              rows: 1
+        column_span: 2
+    title: Status
+    cards: []
+    icon: mdi:folder-home
+    subview: false
+    max_columns: 4
+    header:
+      layout: center
+      badges_position: bottom
+      badges_wrap: wrap
+    badges:
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_select.house_battery_strategy
+        name: Choose strategy
+        tap_action:
+          action: more-info
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_text.house_battery_strategy_active_sub_strategy
+        show_entity_picture: false
+        name: Executing
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: switch.keuken_shelly_1pm_boyler
+        name: Boyler
+        icon: mdi:faucet
+        tap_action:
+          action: toggle
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_boolean.status_niet_thuis
+        tap_action:
+          action: toggle
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.motion_zolder_motion
+        name: Zolder
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.motion_kantoor_motion
+        name: Kantoor
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.beweging_woonkamer_presence
+        name: Woonkamer
+  - type: sections
+    max_columns: 4
+    title: Energie
+    path: energie
+    icon: mdi:transmission-tower
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: title
+            heading: 'Energie Palladiostraat '
+          - title: Energiedistributie vandaag
+            type: energy-distribution
+            link_dashboard: true
+          - type: heading
+            heading: Energie
+            heading_style: title
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: subtitle
+            heading: Huidige Energie
+            icon: mdi:lightning-bolt
+          - type: history-graph
+            entities:
+              - entity: sensor.l1_fase_1
+                name: MK/BEN/HAL/KOFFIE/TRAP/OVEN
+              - entity: sensor.l1_fase_2
+                name: TA/BOY/VAAT/AIRCO
+              - entity: sensor.l1_fase_3
+                name: IND/WAS/BOVEN
+              - entity: sensor.p1_meter_power
+                name: Net belasting
+              - entity: input_text.house_battery_strategy_active_sub_strategy
+                name: Execute
+            hours_to_show: 0.05
+            show_names: true
+            logarithmic_scale: false
+            expand_legend: false
+          - type: history-graph
+            entities:
+              - entity: sensor.current_phase_1
+                name: Fase 1
+              - entity: sensor.current_phase_2
+                name: Fase 2
+              - entity: sensor.current_phase_3
+                name: Fase 3
+              - entity: select.marstek_m1_forcible_charge_discharge
+                name: M1
+            hours_to_show: 0.05
+          - type: history-graph
+            entities:
+              - entity: sensor.keuken_shelly_meter_vaatwasser_vermogen
+                name: Vaatwasser
+              - entity: sensor.keuken_shelly_1pm_boyler_vermogen
+                name: Boyler
+              - entity: switch.keuken_shelly_1pm_boyler
+                name: Boyler
+            hours_to_show: 0.3
+            logarithmic_scale: false
+            expand_legend: false
+          - type: statistics-graph
+            entities:
+              - entity: sensor.l1_fase_1
+                name: MK/BEN/HAL/KOFFIE/TRAP/OVEN
+              - entity: sensor.l1_fase_2
+                name: TA/BOY/VAAT/AIRCO
+              - entity: sensor.l1_fase_3
+                name: IND/WAS/BOVEN
+            days_to_show: 4
+            period: hour
+            chart_type: line
+            stat_types:
+              - max
+              - mean
+              - min
+          - type: statistics-graph
+            entities:
+              - entity: sensor.current_phase_1
+                name: MK/BEN/HAL/KOFFIE/TRAP/OVEN
+              - entity: sensor.current_phase_2
+                name: TA/BOY/VAAT/AIRCO
+              - entity: sensor.current_phase_3
+                name: IND/WAS/BOVEN
+            title: Maximale Stroom Fase
+            days_to_show: 4
+            period: hour
+            chart_type: line
+            stat_types:
+              - max
+            hide_legend: false
+            logarithmic_scale: false
+          - type: statistics-graph
+            entities:
+              - entity: sensor.keuken_shelly_1pm_boyler_vermogen
+                name: Boyler
+                color: red
+              - entity: sensor.keuken_shelly_meter_vaatwasser_vermogen
+                name: Vaatwasser
+                color: green
+            title: 'Maximale vermogen '
+            days_to_show: 4
+            period: hour
+            chart_type: line-stack
+            stat_types:
+              - max
+        column_span: 2
+    badges:
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_number.maxamperel1
+        name: Fase 1
+        color: deep-purple
+        show_entity_picture: false
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_number.maxamperel2
+        name: Fase 2
+        color: deep-purple
+        show_entity_picture: false
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_number.maxamperel3
+        name: Fase 3
+        color: deep-purple
+        show_entity_picture: false
+  - type: sections
+    max_columns: 4
+    title: Lampen
+    path: lampen
+    icon: mdi:alarm-light-outline
+    sections:
+      - type: grid
+        cards:
+          - type: heading
+            heading_style: subtitle
+            heading: Lampen
+          - type: custom:bubble-card
+            card_type: button
+            button_type: slider
+            styles: |-
+              :host{
+                  --color-bar:  ${hass.states[light.woonkamer_2].attributes.rgb_color ? 'rgba('+hass.states[light.woonkamer_2].attributes.rgb_color+`, 0.66)`: '#9933ffAA'};
+                  --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+              }
+
+              .bubble-button-card-container {
+                background: linear-gradient(
+                  to right, 
+                  var(--color-bar) 0%, 
+                  var(--color-bar) ${Math.round((hass.states[light.woonkamer_2].attributes.brightness) / 255 * 100)}%,
+                  var(--color-background) ${Math.round((hass.states[light.woonkamer_2].attributes.brightness) / 255 * 100)}%,
+                  var(--color-background) 100%
+                ) !important;
+              }
+            icon: ''
+            name: ''
+            sub_button:
+              main: []
+              bottom: []
+            card_layout: large
+            slider_fill_orientation: left
+            slider_value_position: right
+            light_slider_type: brightness
+            entity: light.woonkamer_2
+            grid_options:
+              columns: 12
+              rows: 1
+          - type: custom:bubble-card
+            card_type: button
+            button_type: slider
+            styles: |-
+              :host{
+                  --color-bar:  ${hass.states[light.eethoek_2].attributes.rgb_color ? 'rgba('+hass.states[light.eethoek_2].attributes.rgb_color+`, 0.66)`: '#9933ffAA'};
+                  --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+              }
+
+              .bubble-button-card-container {
+                background: linear-gradient(
+                  to right, 
+                  var(--color-bar) 0%, 
+                  var(--color-bar) ${Math.round((hass.states[light.eethoek_2].attributes.brightness) / 255 * 100)}%,
+                  var(--color-background) ${Math.round((hass.states[light.eethoek_2].attributes.brightness) / 255 * 100)}%,
+                  var(--color-background) 100%
+                ) !important;
+              }
+            icon: ''
+            name: ''
+            sub_button:
+              main: []
+              bottom: []
+            card_layout: large
+            slider_fill_orientation: left
+            slider_value_position: right
+            light_slider_type: brightness
+            entity: light.eethoek_2
+            grid_options:
+              columns: 12
+              rows: 1
+          - type: custom:bubble-card
+            card_type: button
+            button_type: slider
+            styles: |-
+              :host{
+                  --color-bar:  ${hass.states[light.keuken].attributes.rgb_color ? 'rgba('+hass.states[light.keuken].attributes.rgb_color+`, 0.66)`: '#9933ffAA'};
+                  --color-background: var(--bubble-button-main-background-color, var(--bubble-main-background-color, var(--background-color-2, var(--secondary-background-color))));
+              }
+
+              .bubble-button-card-container {
+                background: linear-gradient(
+                  to right, 
+                  var(--color-bar) 0%, 
+                  var(--color-bar) ${Math.round((hass.states[light.keuken].attributes.brightness) / 255 * 100)}%,
+                  var(--color-background) ${Math.round((hass.states[light.keuken].attributes.brightness) / 255 * 100)}%,
+                  var(--color-background) 100%
+                ) !important;
+              }
+            icon: ''
+            name: ''
+            sub_button:
+              main: []
+              bottom: []
+            card_layout: large
+            slider_fill_orientation: left
+            slider_value_position: right
+            light_slider_type: brightness
+            entity: light.keuken
+            grid_options:
+              columns: 12
+              rows: 1
+          - type: tile
+            entity: light.woonkamer
+            features:
+              - type: light-color-favorites
+          - type: tile
+            entity: light.eethoek_2
+            features:
+              - type: light-color-favorites
+          - type: custom:bubble-card
+            card_type: button
+            entity: scene.woonkamer_concentreren
+            grid_options:
+              columns: 3
+              rows: auto
+            button_type: switch
+            show_icon: false
+            show_name: true
+            name: 'Concentreren '
+          - type: custom:bubble-card
+            card_type: button
+            entity: scene.woonkamer_gedimd
+            grid_options:
+              columns: 3
+              rows: auto
+            button_type: switch
+            show_icon: false
+            name: Gedimd
+          - type: custom:bubble-card
+            card_type: button
+            entity: scene.eethoek_honolulu
+            grid_options:
+              columns: 3
+              rows: auto
+            button_type: switch
+            show_icon: false
+            name: Hono
+      - type: grid
+        cards:
+          - type: heading
+            heading: Nieuwe sectie
+  - type: sections
+    max_columns: 4
+    icon: mdi:cog-outline
+    path: andere-dashboards
+    title: Andere dashboards
+    sections:
+      - type: grid
+        cards:
+          - type: custom:mushroom-template-card
+            secondary: |
+              {{ states("sensor.marstek_m1_battery_state_of_charge") }}%  Opl:
+              {{ states("sensor.marstek_m1_ac_power") }}W
+            icon: mdi:battery
+            tap_action:
+              action: navigate
+              navigation_path: /thuis-baterij-new4-5
+            color: >-
+              {% if is_state("sensor.marstek_m1_battery_state_of_charge", > 0
+              )%}
+                amber
+              {%endif%}
+            features_position: bottom
+            grid_options:
+              columns: 12
+              rows: 1
+            multiline_secondary: false
+            primary: Thuis Baterij
+          - type: custom:mushroom-template-card
+            secondary: |
+              API = {{ states("select.marstek_m1_rs485_control_mode") }}
+            icon: mdi:battery
+            tap_action:
+              action: navigate
+              navigation_path: /dashboard-marstek
+            color: >-
+              {% if is_state("sensor.marstek_m1_battery_state_of_charge", > 0
+              )%}
+                amber
+              {%endif%}
+            features_position: bottom
+            grid_options:
+              columns: 12
+              rows: 1
+            multiline_secondary: false
+            primary: Marstek
+          - type: custom:mushroom-template-card
+            secondary: "\n"
+            icon: mdi:nodejs
+            tap_action:
+              action: navigate
+              navigation_path: /app/a0d7b954_nodered
+            features_position: bottom
+            grid_options:
+              columns: 12
+              rows: 1
+            multiline_secondary: false
+            primary: node-red
+          - type: custom:mushroom-template-card
+            secondary: "\n"
+            icon: mdi:zigbee
+            tap_action:
+              action: navigate
+              navigation_path: /app/45df7312_zigbee2mqtt
+            features_position: bottom
+            grid_options:
+              columns: 12
+              rows: 1
+            multiline_secondary: false
+            primary: zigbee
