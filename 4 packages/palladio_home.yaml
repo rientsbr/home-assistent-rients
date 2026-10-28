@@ -9,11 +9,11 @@ template:
 #
   - sensor:
       # 
-      - name: "L1 Fase 1"
-        unique_id: "l1_meter_fase1"
-        unit_of_measurement: "W"
-        device_class: "power"
-        state_class: "measurement"
+      - name: L1 Fase 1
+        unique_id: l1_meter_fase1
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
         state: >
           {% set consumption = states('sensor.power_consumed_phase_1') | float(none) %}
           {% set production = states('sensor.power_produced_phase_1') | float(none) %}
@@ -21,38 +21,75 @@ template:
             
   - sensor:
       # 
-      - name: "L1 Fase 2"
-        unique_id: "l1_meter_fase2"
-        unit_of_measurement: "W"
-        device_class: "power"
-        state_class: "measurement"
-        state: >
-          {% set consumption = states('sensor.power_consumed_phase_2') | float(none) %}
-          {% set production = states('sensor.power_produced_phase_2') | float(none) %}
-          {{ (consumption - production) *1000 | round(2) }}
-
+    - name: L1 Fase 2
+      unique_id: l1_meter_fase2
+      unit_of_measurement: W
+      device_class: power
+      state_class: measurement
+      state: >
+        {% set consumption = states('sensor.power_consumed_phase_2') | float(0) %}
+        {% set production = states('sensor.power_produced_phase_2') | float(0) %}
+        {{ ((consumption - production) * 1000) | round(2) }}
 
   - sensor:
       #
-      - name: "L1 Fase 3"
-        unique_id: "l1_meter_fase3"
-        unit_of_measurement: "W"
-        device_class: "power"
-        state_class: "measurement"
+      - name: L1 Fase 3
+        unique_id: l1_meter_fase3
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
         state: >
           {% set consumption = states('sensor.power_consumed_phase_3') | float(none) %}
           {% set production = states('sensor.power_produced_phase_3') | float(none) %}
           {{ (consumption - production) *1000 | round(2) }}
 
+##
+
+  - sensor:
+      - name: Berekende L1 Ampere
+        unique_id: berekende_l1_ampere
+        unit_of_measurement: A
+        state: >
+          {% set ingestelde_ampere = states('sensor.current_phase_1') | float(0) %}
+          {% set geproduceerd = states('sensor.power_produced_phase_1') | float(0) %}
+          {% set geconsumeerd = states('sensor.power_consumed_phase_1') | float(0) %}
+          {% set basis_ampere = ingestelde_ampere | abs %}
+          
+          {% if geproduceerd > geconsumeerd %}
+            {# Productie is groter, dus maak de ingestelde waarde negatief #}
+            {{ -1 * basis_ampere }}
+          {% else %}
+            {# Verbruik is groter, dus hou de waarde positief #}
+            {{ basis_ampere }}
+          {% endif %}
+
+  - sensor:
+      - name: Berekende L2 Ampere
+        unique_id: berekende_l2_ampere
+        unit_of_measurement: A
+        state: >
+          {% set ingestelde_ampere = states('sensor.current_phase_2') | float(0) %}
+          {% set geproduceerd = states('sensor.power_produced_phase_2') | float(0) %}
+          {% set geconsumeerd = states('sensor.power_consumed_phase_2') | float(0) %}
+          {% set basis_ampere = ingestelde_ampere | abs %}
+          
+          {% if geproduceerd > geconsumeerd %}
+            {# Productie is groter, dus maak de ingestelde waarde negatief #}
+            {{ -1 * basis_ampere }}
+          {% else %}
+            {# Verbruik is groter, dus hou de waarde positief #}
+            {{ basis_ampere }}
+          {% endif %}
+
 #
 #  template voor EVOHome thermostaar
   - sensor:
       #
-      - name: "Thermostaat Woonkamer"
-        unique_id: "thermostaat_woonkamer"
-        unit_of_measurement: "°C"
-        device_class: "temperature"
-        state_class: "measurement"
+      - name: Thermostaat Woonkamer
+        unique_id: thermostaat_woonkamer
+        unit_of_measurement: °C
+        device_class: temperature
+        state_class: measurement
         state: >
           {% set current_temp = state_attr('climate.woonkamer', 'current_temperature') | float(2) %}
           {% set set_temp = state_attr('climate.woonkamer', 'temperature') | float(2) %}
@@ -60,11 +97,11 @@ template:
 
   - sensor:
       #
-      - name: "Thermostaat Zolder"
-        unique_id: "thermostaat_zolder"
-        unit_of_measurement: "°C"
-        device_class: "temperature"
-        state_class: "measurement"
+      - name: Thermostaat Zolder
+        unique_id: thermostaat_zolder
+        unit_of_measurement: °C
+        device_class: temperature
+        state_class: measurement
         state: >
           {% set current_temp = state_attr('climate.zolder', 'current_temperature') | float(2) %}
           {% set set_temp = state_attr('climate.zolder', 'temperature') | float(2) %}
@@ -74,63 +111,34 @@ template:
 
 
 input_number:
-# Maximale vermogens voor de fases bij houden
-  l1fase1max:
-    # 
-    name: "L1 Maximale Watage"
-    min: 1
-    max: 6000
-    step: 1
-    unit_of_measurement: "W"
-    mode: box
-    icon: mdi:chart-timeline-variant-shimmer
-    
-  l1fase2max:
-    # 
-    name: "L2 Maximale Watage"
-    min: 1
-    max: 6000
-    step: 1
-    unit_of_measurement: "W"
-    mode: box
-    icon: mdi:chart-timeline-variant-shimmer
-    
-  l1fase3max:
-    # 
-    name: "L3 Maximale Watage"
-    min: 1
-    max: 6000
-    step: 1
-    unit_of_measurement: "W"
-    mode: box
-    icon: mdi:chart-timeline-variant-shimmer
+# Maximale stroom per fase bijhouden
 
   maxamperel1:
     # 
-    name: "L1 Maximale Ampere"
+    name: L1 Maximale Ampere
     min: 1
     max: 35
     step: 0.1
-    unit_of_measurement: "A"
+    unit_of_measurement: A
     mode: box
     icon: mdi:chart-timeline-variant-shimmer
 
   maxamperel2:
     # 
-    name: "L2 Maximale Ampere"
+    name: L2 Maximale Ampere
     min: 1
     max: 35
     step: 0.1
-    unit_of_measurement: "A"
+    unit_of_measurement: A
     mode: box
     icon: mdi:chart-timeline-variant-shimmer
   
   maxamperel3:
     # 
-    name: "L3 Maximale Ampere"
+    name: L3 Maximale Ampere
     min: 1
     max: 35
     step: 1
-    unit_of_measurement: "A"
+    unit_of_measurement: A
     mode: box
     icon: mdi:chart-timeline-variant-shimmer
