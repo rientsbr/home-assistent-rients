@@ -16,7 +16,8 @@ template:
         state_class: "measurement"
         state: >
           {% set consumption = states('sensor.power_consumed_phase_1') | float(none) %}
-          {{ (consumption) *1000 | round(2) }}
+          {% set production = states('sensor.power_produced_phase_1') | float(none) %}
+          {{ (consumption - production) *1000 | round(2) }}
             
   - sensor:
       # 
@@ -27,6 +28,8 @@ template:
         state_class: "measurement"
         state: >
           {% set consumption = states('sensor.power_consumed_phase_2') | float(none) %}
+          {% set production = states('sensor.power_produced_phase_2') | float(none) %}
+          {{ (consumption - production) *1000 | round(2) }}
           {{ (consumption) *1000 | round(2) }}
 
   - sensor:
@@ -38,7 +41,8 @@ template:
         state_class: "measurement"
         state: >
           {% set consumption = states('sensor.power_consumed_phase_3') | float(none) %}
-          {{ (consumption) *1000 | round(2) }}
+          {% set production = states('sensor.power_produced_phase_3') | float(none) %}
+          {{ (consumption - production) *1000 | round(2) }}
 
 #
 #  template voor EVOHome thermostaar
