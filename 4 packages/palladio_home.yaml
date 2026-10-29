@@ -49,6 +49,8 @@ template:
       - name: Berekende L1 Ampere
         unique_id: berekende_l1_ampere
         unit_of_measurement: A
+        device_class: current
+        state_class: measurement
         state: >
           {% set ingestelde_ampere = states('sensor.current_phase_1') | float(0) %}
           {% set geproduceerd = states('sensor.power_produced_phase_1') | float(0) %}
@@ -67,6 +69,8 @@ template:
       - name: Berekende L2 Ampere
         unique_id: berekende_l2_ampere
         unit_of_measurement: A
+        device_class: current
+        state_class: measurement
         state: >
           {% set ingestelde_ampere = states('sensor.current_phase_2') | float(0) %}
           {% set geproduceerd = states('sensor.power_produced_phase_2') | float(0) %}
