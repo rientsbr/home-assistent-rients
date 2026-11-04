@@ -1,13 +1,34 @@
 # Templates etc voor RM Brandsma HA Dashboard
 #
 #
-# TEMPLATES
-# 
+
+
 template:
-#
-# Vermogen per fase (uit P1 meter) omzettenn in Watt
-#
   - sensor:
+      # Dit is de sensor die de Netto Vermogen die uit de integratie van ESPHome komt
+      # 
+      - name: "L1 Meter Power"
+        unique_id: "l1_meter_power"
+        unit_of_measurement: "W"
+        device_class: "power"
+        state_class: "measurement"
+        state: >
+          {% set consumption = states('sensor.power_consumed') | float(0) %}
+          {% set production = states('sensor.power_produced') | float(0) %}
+          {{ (consumption - production) *1000 | round(2) }}
+
+      # House battery control | Grid power
+      # Your P1 meter indicates the power drawn or returned to grid.
+      # This "P1 meter power" sensor acts as an alias for you power sensing configuration and is used throughout the node-RED scripts.
+      - name: "P1 Meter Power"
+        unique_id: "p1_meter_power"
+        state: "{{ states('sensor.l1_meter_power') }}" # << SET YOUR GRID POWER SENSOR HERE
+        unit_of_measurement: "W"
+        device_class: "power"
+        state_class: "measurement"
+
+
+
       # 
       - name: L1 Fase 1
         unique_id: l1_meter_fase1
@@ -120,7 +141,7 @@ input_number:
   maxamperel1:
     # 
     name: L1 Maximale Ampere
-    min: 1
+    min: -35
     max: 35
     step: 0.1
     unit_of_measurement: A
@@ -130,7 +151,7 @@ input_number:
   maxamperel2:
     # 
     name: L2 Maximale Ampere
-    min: 1
+    min: -35
     max: 35
     step: 0.1
     unit_of_measurement: A
@@ -140,7 +161,7 @@ input_number:
   maxamperel3:
     # 
     name: L3 Maximale Ampere
-    min: 1
+    min: -35
     max: 35
     step: 1
     unit_of_measurement: A
