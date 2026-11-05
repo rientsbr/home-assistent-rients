@@ -1,0 +1,550 @@
+[
+    {
+        "id": "ecdd5d6585050bf2",
+        "type": "tab",
+        "label": "Automatiseringen voor balans Thuis accu",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "cf074a7a8a133db9",
+        "type": "group",
+        "z": "ecdd5d6585050bf2",
+        "name": "Boyler uit te zetten op moment dat Vaatwasser aan gaat",
+        "style": {
+            "label": true
+        },
+        "nodes": [
+            "5d90727b1147cfd8",
+            "30b3b023212d1b46",
+            "a15f4289e7fa9bda",
+            "e7f15a9ddfb74604",
+            "4a7403a2db1f1783",
+            "8fdee629025bf81a",
+            "6eb83830d1c8dee0"
+        ],
+        "x": 34,
+        "y": 59,
+        "w": 652,
+        "h": 202
+    },
+    {
+        "id": "7cf530b2eb949d20",
+        "type": "group",
+        "z": "ecdd5d6585050bf2",
+        "style": {
+            "stroke": "#1f4662",
+            "stroke-opacity": "1",
+            "fill": "#122738",
+            "fill-opacity": "0.5",
+            "label": true,
+            "label-position": "nw",
+            "color": "#aaaaaa"
+        },
+        "nodes": [
+            "c7d6e0dbb87b31fd",
+            "6ab87ca2ebde8aea",
+            "b02997b2e07f2572",
+            "eb3b0beaa9678fae",
+            "63ef32c0853fd374"
+        ],
+        "x": 34,
+        "y": 339,
+        "w": 652,
+        "h": 122
+    },
+    {
+        "id": "5d90727b1147cfd8",
+        "type": "server-state-changed",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Vaatwasser ",
+        "server": "176d29a.6f648d6",
+        "version": 6,
+        "outputs": 2,
+        "exposeAsEntityConfig": "",
+        "entities": {
+            "entity": [
+                "sensor.keuken_shelly_meter_vaatwasser_vermogen"
+            ],
+            "substring": [],
+            "regex": []
+        },
+        "outputInitially": false,
+        "stateType": "str",
+        "ifState": "0",
+        "ifStateType": "num",
+        "ifStateOperator": "is",
+        "outputOnlyOnStateChange": true,
+        "for": "60",
+        "forType": "num",
+        "forUnits": "minutes",
+        "ignorePrevStateNull": false,
+        "ignorePrevStateUnknown": false,
+        "ignorePrevStateUnavailable": false,
+        "ignoreCurrentStateUnknown": false,
+        "ignoreCurrentStateUnavailable": false,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "eventData"
+            },
+            {
+                "property": "topic",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "triggerId"
+            }
+        ],
+        "x": 130,
+        "y": 160,
+        "wires": [
+            [
+                "8fdee629025bf81a"
+            ],
+            [
+                "6eb83830d1c8dee0"
+            ]
+        ]
+    },
+    {
+        "id": "30b3b023212d1b46",
+        "type": "api-call-service",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Zet Boyler AAN",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_on",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.keuken_shelly_1pm_boyler"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_on",
+        "x": 580,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "a15f4289e7fa9bda",
+        "type": "api-call-service",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Zet Boyler UIT",
+        "server": "176d29a.6f648d6",
+        "version": 7,
+        "debugenabled": false,
+        "action": "switch.turn_off",
+        "floorId": [],
+        "areaId": [],
+        "deviceId": [],
+        "entityId": [
+            "switch.keuken_shelly_1pm_boyler"
+        ],
+        "labelId": [],
+        "data": "",
+        "dataType": "jsonata",
+        "mergeContext": "",
+        "mustacheAltTags": false,
+        "outputProperties": [],
+        "queue": "none",
+        "blockInputOverrides": true,
+        "domain": "switch",
+        "service": "turn_off",
+        "x": 580,
+        "y": 220,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "73d9606e0ce68058",
+        "type": "comment",
+        "z": "ecdd5d6585050bf2",
+        "name": "Dit zijn alle automatiseringen om de Thuis Accu goed aan te sturen.",
+        "info": "Dit zijn alle automatiseringen om de Thuis Accu goed aan te sturen.",
+        "x": 260,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "c7d6e0dbb87b31fd",
+        "type": "inject",
+        "z": "ecdd5d6585050bf2",
+        "g": "7cf530b2eb949d20",
+        "name": "Trigger elke 5 seconden",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "5",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 190,
+        "y": 380,
+        "wires": [
+            [
+                "6ab87ca2ebde8aea"
+            ]
+        ]
+    },
+    {
+        "id": "e7f15a9ddfb74604",
+        "type": "inject",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Om 21:30uur",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "30 21 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 220,
+        "wires": [
+            [
+                "a15f4289e7fa9bda"
+            ]
+        ]
+    },
+    {
+        "id": "4a7403a2db1f1783",
+        "type": "inject",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Om 5:00 uur",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "00 05 * * *",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 100,
+        "wires": [
+            [
+                "30b3b023212d1b46"
+            ]
+        ]
+    },
+    {
+        "id": "6ab87ca2ebde8aea",
+        "type": "api-current-state",
+        "z": "ecdd5d6585050bf2",
+        "g": "7cf530b2eb949d20",
+        "name": "Solaredge Power",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 1,
+        "halt_if": "",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "sensor.solaredge_ac_power",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "solaredge",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 190,
+        "y": 420,
+        "wires": [
+            [
+                "b02997b2e07f2572"
+            ]
+        ]
+    },
+    {
+        "id": "b02997b2e07f2572",
+        "type": "api-current-state",
+        "z": "ecdd5d6585050bf2",
+        "g": "7cf530b2eb949d20",
+        "name": "Zonnepanelen Uitbouw",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 1,
+        "halt_if": "",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "sensor.zonnepaneel_garage_power",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "uitbouw",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 430,
+        "y": 420,
+        "wires": [
+            [
+                "eb3b0beaa9678fae"
+            ]
+        ]
+    },
+    {
+        "id": "eb3b0beaa9678fae",
+        "type": "function",
+        "z": "ecdd5d6585050bf2",
+        "g": "7cf530b2eb949d20",
+        "name": "function 1",
+        "func": "let solaredge = Number(msg.solaredge);\nlet uitbouw = Number(msg.uitbouw);\n\n\nmsg.payload = solaredge - uitbouw\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 420,
+        "y": 380,
+        "wires": [
+            [
+                "63ef32c0853fd374"
+            ]
+        ]
+    },
+    {
+        "id": "63ef32c0853fd374",
+        "type": "debug",
+        "z": "ecdd5d6585050bf2",
+        "g": "7cf530b2eb949d20",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 580,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "8fdee629025bf81a",
+        "type": "api-current-state",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Is vaarwasser aan",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 2,
+        "halt_if": "on",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "sensor.keuken_shelly_meter_vaatwasser_vermogen",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            },
+            {
+                "property": "maxstroom2",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            },
+            {
+                "property": "maxstroom2",
+                "propertyType": "flow",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 390,
+        "y": 140,
+        "wires": [
+            [],
+            [
+                "30b3b023212d1b46"
+            ]
+        ]
+    },
+    {
+        "id": "6eb83830d1c8dee0",
+        "type": "api-current-state",
+        "z": "ecdd5d6585050bf2",
+        "g": "cf074a7a8a133db9",
+        "name": "Is vaarwasser uit",
+        "server": "176d29a.6f648d6",
+        "version": 3,
+        "outputs": 2,
+        "halt_if": "off",
+        "halt_if_type": "str",
+        "halt_if_compare": "is",
+        "entity_id": "sensor.keuken_shelly_meter_vaatwasser_vermogen",
+        "state_type": "str",
+        "blockInputOverrides": true,
+        "outputProperties": [
+            {
+                "property": "payload",
+                "propertyType": "msg",
+                "value": "string",
+                "valueType": "entityState"
+            },
+            {
+                "property": "data",
+                "propertyType": "msg",
+                "value": "",
+                "valueType": "entity"
+            },
+            {
+                "property": "maxstroom2",
+                "propertyType": "msg",
+                "value": "number",
+                "valueType": "entityState"
+            },
+            {
+                "property": "maxstroom2",
+                "propertyType": "flow",
+                "value": "number",
+                "valueType": "entityState"
+            }
+        ],
+        "for": "0",
+        "forType": "num",
+        "forUnits": "minutes",
+        "override_topic": false,
+        "state_location": "payload",
+        "override_payload": "msg",
+        "entity_location": "data",
+        "override_data": "msg",
+        "x": 390,
+        "y": 180,
+        "wires": [
+            [],
+            [
+                "a15f4289e7fa9bda"
+            ]
+        ]
+    },
+    {
+        "id": "176d29a.6f648d6",
+        "type": "server",
+        "name": "Home Assistant",
+        "addon": true,
+        "rejectUnauthorizedCerts": true,
+        "ha_boolean": [],
+        "connectionDelay": false,
+        "cacheJson": false,
+        "heartbeat": false,
+        "heartbeatInterval": "",
+        "statusSeparator": "",
+        "enableGlobalContextStore": false
+    },
+    {
+        "id": "24937f3aa386ca10",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-contrib-home-assistant-websocket": "0.82.0"
+        }
+    }
+]

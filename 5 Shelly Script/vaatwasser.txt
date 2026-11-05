@@ -1,0 +1,76 @@
+
+/*
+  Shelly PM Mini Gen3
+  Schakel Shelly 1PM Gen4 UIT
+  als vermogen 1800 seconden (30 minuten) 0 W blijft.
+*/
+
+let TARGET_IP = "192.168.178.87";
+let USERNAME = "admin";
+let PASSWORD = "rypZik-xorgon-tibhy6";
+
+let WAIT_SECONDS = 1800;
+let CHECK_INTERVAL = 1000;
+
+let zeroTimer = null;
+
+function checkPower() {
+  let status = Shelly.getComponentStatus("pm1:0");
+
+  if (!status) {
+    console.log("Kan vermogensmeting niet lezen");
+    return;
+  }
+
+  let power = status.apower;
+
+  console.log("Gemeten vermogen:", power, "W");
+
+  if (power <= 0) {
+    if (zeroTimer === null) {
+      console.log("0 W gedetecteerd. Timer gestart.");
+
+      zeroTimer = Timer.set(
+        WAIT_SECONDS * 1000,
+        false,
+        function () {
+          zeroTimer = null;
+
+          let current = Shelly.getComponentStatus("pm1:0");
+
+          if (current && current.apower <= 0) {
+            console.log("300 seconden 0 W. Shelly UIT.");
+
+            Shelly.call(
+              "HTTP.GET",
+              {
+                url: "http://" + USERNAME + ":" +
+                  encodeURIComponent(PASSWORD) + "@" +
+                  TARGET_IP +
+                  "/rpc/Switch.Set?id=0&on=false",
+                timeout: 10
+              },
+              function (result, errorCode, errorMessage) {
+                if (errorCode !== 0) {
+                  console.log("Fout:", errorMessage);
+                } else {
+                  console.log("Shelly 1PM Gen4 uitgeschakeld");
+                }
+              }
+            );
+          }
+        }
+      );
+    }
+  } else {
+    if (zeroTimer !== null) {
+      Timer.clear(zeroTimer);
+      zeroTimer = null;
+      console.log("Vermogen terug. Timer gereset.");
+    }
+  }
+}
+
+Timer.set(CHECK_INTERVAL, true, checkPower);
+
+checkPower();
