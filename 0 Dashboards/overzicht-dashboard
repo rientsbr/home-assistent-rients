@@ -516,11 +516,6 @@ views:
       badges_position: bottom
       badges_wrap: wrap
     badges:
-      - type: shortcut
-        tap_action:
-          action: navigate
-          navigation_path: /thuis-baterij-new4-5
-        text: Thuis Batterij
       - type: entity
         show_name: true
         show_state: true
@@ -554,17 +549,6 @@ views:
         name: Fase 3
         color: deep-purple
         show_entity_picture: false
-      - type: entity
-        entity: input_select.house_battery_strategy
-      - type: entity
-        entity: input_text.house_battery_strategy_active_sub_strategy
-        show_name: true
-      - type: entity
-        show_name: false
-        show_state: true
-        show_icon: true
-        entity: select.marstek_m1_forcible_charge_discharge
-        icon: mdi:battery
   - type: sections
     max_columns: 4
     title: Energie
@@ -858,43 +842,6 @@ views:
     sections:
       - type: grid
         cards:
-          - type: custom:mushroom-template-card
-            secondary: |
-              {{ states("sensor.marstek_m1_battery_state_of_charge") }}%  Opl:
-              {{ states("sensor.marstek_m1_ac_power") }}W
-            icon: mdi:battery
-            tap_action:
-              action: navigate
-              navigation_path: /thuis-baterij-new4-5
-            color: >-
-              {% if is_state("sensor.marstek_m1_battery_state_of_charge", > 0
-              )%}
-                amber
-              {%endif%}
-            features_position: bottom
-            grid_options:
-              columns: 12
-              rows: 1
-            multiline_secondary: false
-            primary: Thuis Baterij
-          - type: custom:mushroom-template-card
-            secondary: |
-              API = {{ states("select.marstek_m1_rs485_control_mode") }}
-            icon: mdi:battery
-            tap_action:
-              action: navigate
-              navigation_path: /dashboard-marstek
-            color: >-
-              {% if is_state("sensor.marstek_m1_battery_state_of_charge", > 0
-              )%}
-                amber
-              {%endif%}
-            features_position: bottom
-            grid_options:
-              columns: 12
-              rows: 1
-            multiline_secondary: false
-            primary: Marstek
           - type: custom:mushroom-template-card
             secondary: "\n"
             icon: mdi:nodejs
