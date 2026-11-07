@@ -1,37 +1,273 @@
-# This file contains config for Home Assistant unique to your installation and should not be overwritten with each update of House Battery Control
-# It should be included in the main configuration.yaml file as a `package` via `!include_dir_named` https://www.home-assistant.io/docs/configuration/packages/.
-# Use the values below as a `template` for your specific needs
+#
+# Slimmemeter implementatie voor ESPHome met de Zuidwijk slimmemeter+ 
+# 
+---
+substitutions:
+  device_name: slimmelezer
+    
+esphome:
+  name: ${device_name}
+  name_add_mac_suffix: false
+  friendly_name: slimmemeter
 
-template:
-  - sensor:
-      # Example: sensor for single-phase power meter
-      - name: "L1 Meter Power"
-        unique_id: "l1_meter_power"
-        unit_of_measurement: "W"
-        device_class: "power"
-        state_class: "measurement"
-        state: >
-          {% set consumption = states('sensor.power_consumed') | float(0) %}
-          {% set production = states('sensor.power_produced') | float(0) %}
-          {{ (consumption - production) *1000 | round(2) }}
-      # Example: sensor for three-phase power meter (singular net power value going positive for consumption, negative for production)
-      # - name: "L3 Meter Power"
-      #   unique_id: "l3_meter_power"
-      #   unit_of_measurement: "W"
-      #   device_class: "power"
-      #   state_class: "measurement"
-      #   state: >
-      #     {% set l1 = states('sensor.electricity_meter_power_phase_l1') | float(0) %}
-      #     {% set l2 = states('sensor.electricity_meter_power_phase_l2') | float(0) %}
-      #     {% set l3 = states('sensor.electricity_meter_power_phase_l3') | float(0) %}
-      #     {{ (l1 + l2 + l3) | round(2) }}
+esp8266:
+  restore_from_flash: true
+  board: d1_mini
 
-      # House battery control | Grid power
-      # Your P1 meter indicates the power drawn or returned to grid.
-      # This "P1 meter power" sensor acts as an alias for you power sensing configuration and is used throughout the node-RED scripts.
-      - name: "P1 Meter Power"
-        unique_id: "p1_meter_power"
-        state: "{{ states('sensor.l1_meter_power') }}" # << SET YOUR GRID POWER SENSOR HERE
-        unit_of_measurement: "W"
-        device_class: "power"
-        state_class: "measurement"
+wifi:
+  ssid: !secret wifi_ssid 
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${device_name}
+  
+  # Powersaving for brownout due to 250mA restriction P1
+  #output_power: 10dB
+
+captive_portal:
+
+# Enable logging
+logger:
+  baud_rate: 0
+#  logs: 
+#    component: ERROR
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret slimmelezer__encryption_key
+ota:
+  - platform: esphome
+
+web_server:
+  port: 80
+
+  auth:
+    username: rients
+    password: !secret atom__web_password
+    type: digest
+
+uart:
+  baud_rate: 115200
+  rx_pin: D7
+  rx_buffer_size: 4096
+
+globals:
+  - id: has_key
+    type: bool
+    restore_value: yes
+    initial_value: "false"
+  - id: stored_decryption_key
+    type: char[32]
+    restore_value: yes
+
+## RESET FUNCTION ##
+switch:
+  - platform: factory_reset
+    name: Restart with Factory Default Settings
+    id: resetbutton
+    internal: true
+
+binary_sensor:
+  - platform: gpio
+    name: "Reset switch GPIO5"
+    pin: 
+      number: GPIO5
+      mode:
+        input: true
+        pullup: false
+    on_press: 
+      then:
+        - logger.log: "Reset button pressed"
+        - switch.turn_on: resetbutton
+
+light:
+  - platform: status_led
+    name: "Status LED"
+    pin: 
+      number: GPIO02
+      inverted: true
+## END RESET FUNCTION ##
+
+dsmr:
+  id: dsmr_instance
+  max_telegram_length: 4096
+  # For Luxembourg users set here your decryption key
+  #decryption_key: !secret decryption_key // enable this when using decryption for Luxembourg; key like '00112233445566778899AABBCCDDEEFF'
+
+sensor:
+  - platform: dsmr
+    energy_delivered_tariff1:
+      name: "Energy Consumed Tariff 1"
+      filters:
+        - or:
+            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
+            - delta: 0.001  
+    energy_delivered_tariff2:
+      name: "Energy Consumed Tariff 2"
+      filters:
+        - or:
+            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
+            - delta: 0.001 
+    energy_returned_tariff1:
+      name: "Energy Produced Tariff 1"
+      filters:
+        - or:
+            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
+            - delta: 0.001 
+    energy_returned_tariff2:
+      name: "Energy Produced Tariff 2"
+      filters:
+        - or:
+            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
+            - delta: 0.001 
+    power_delivered:
+      name: "Power Consumed"
+      accuracy_decimals: 3
+      filters:
+       # Neemt het gemiddelde van de laatste 8 metingen (ca. 8 seconden)
+        - sliding_window_moving_average:
+            window_size: 8
+            send_every: 2 # Stuurt slechts om de 2 seconden een update naar HA
+    power_returned:
+      name: "Power Produced"
+      accuracy_decimals: 3
+      filters:
+       # Neemt het gemiddelde van de laatste 8 metingen (ca. 8 seconden)
+        - sliding_window_moving_average:
+            window_size: 8
+            send_every: 2 # Stuurt slechts om de 2 seconden een update naar HA
+#    electricity_failures:
+#      name: "Electricity Failures"
+#      icon: mdi:alert
+#    electricity_long_failures:
+#      name: "Long Electricity Failures"
+#      icon: mdi:alert
+#    voltage_l1:
+#      name: "Voltage Phase 1"
+#    voltage_l2:
+#      name: "Voltage Phase 2"
+#    voltage_l3:
+#      name: "Voltage Phase 3"
+    current_l1:
+      name: "Current Phase 1"
+      accuracy_decimals: 1
+      filters:
+#       - or:
+#            - throttle_average: 10s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
+#            - delta: 1.0  
+
+        - clamp:
+            min_value: 0.0
+            max_value: 35.0
+
+    current_l2:
+      name: "Current Phase 2"
+      accuracy_decimals: 1
+      filters:
+#        - or:
+#            - throttle_average: 10s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
+#            - delta: 1.0 
+        - clamp:
+            min_value: 0.0
+            max_value: 35.0
+
+    current_l3:
+      name: "Current Phase 3"
+      accuracy_decimals: 1
+      filters:
+#        - or:
+#            - throttle_average: 10s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
+#            - delta: 1.0  
+        - clamp:
+            min_value: 0.0
+            max_value: 35.0
+            
+    power_delivered_l1:
+      name: "Power Consumed Phase 1"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 10s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
+
+    power_delivered_l2:
+      name: "Power Consumed Phase 2"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 10s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
+
+    power_delivered_l3:
+      name: "Power Consumed Phase 3"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 10s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
+#      filters: 
+#        - lambda: |-
+#            if (x> 5.75) {
+#            return{};
+#            }
+#            return{x};
+    power_returned_l1:
+      name: "Power Produced Phase 1"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
+    power_returned_l2:
+      name: "Power Produced Phase 2"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
+    power_returned_l3:
+      name: "Power Produced Phase 3"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
+            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+
+    gas_delivered:
+      name: "Gas Consumed"
+      accuracy_decimals: 3
+      filters:
+        - or:
+            - throttle: 1h            # Stuurt sowieso elk uur de huidige stand door...
+            - delta: 0.001            # ...maar update direct zodra er exact 1 liter (0.001 m³) gas is verbruikt!
+#  - platform: uptime
+#    name: "SlimmeLezer Uptime"
+#  - platform: wifi_signal
+#    name: "SlimmeLezer Wi-Fi Signal"
+#    update_interval: 60s
+
+text_sensor:
+  - platform: dsmr
+    identification:
+      name: "DSMR Identification"
+#    p1_version:
+#      name: "DSMR Version"
+#    timestamp:
+#      name: "Timestamp"
+#  - platform: wifi_info
+#    ip_address:
+#      name: "SlimmeLezer IP Address"
+#    ssid:
+#      name: "SlimmeLezer Wi-Fi SSID"
+#    bssid:
+#      name: "SlimmeLezer Wi-Fi BSSID"
+  - platform: version
+    name: "ESPHome Version"
+    hide_timestamp: true
