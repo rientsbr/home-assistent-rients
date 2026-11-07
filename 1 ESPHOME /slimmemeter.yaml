@@ -126,18 +126,22 @@ sensor:
       name: "Power Consumed"
       accuracy_decimals: 3
       filters:
-       # Neemt het gemiddelde van de laatste 8 metingen (ca. 8 seconden)
+        # 1. Bereken continu het gemiddelde van de laatste 10 metingen/seconden
         - sliding_window_moving_average:
-            window_size: 8
-            send_every: 2 # Stuurt slechts om de 2 seconden een update naar HA
+            window_size: 10
+            send_every: 1
+        # 2. Geef dit gemiddelde maximaal één keer per 5 seconden door aan Home Assistant
+        - throttle: 5s
     power_returned:
       name: "Power Produced"
       accuracy_decimals: 3
       filters:
-       # Neemt het gemiddelde van de laatste 8 metingen (ca. 8 seconden)
+        # 1. Bereken continu het gemiddelde van de laatste 10 metingen/seconden
         - sliding_window_moving_average:
-            window_size: 8
-            send_every: 2 # Stuurt slechts om de 2 seconden een update naar HA
+            window_size: 10
+            send_every: 1
+        # 2. Geef dit gemiddelde maximaal één keer per 5 seconden door aan Home Assistant
+        - throttle: 5s
 #    electricity_failures:
 #      name: "Electricity Failures"
 #      icon: mdi:alert
