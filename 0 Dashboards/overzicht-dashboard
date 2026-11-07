@@ -23,12 +23,12 @@ views:
                       fill_width: false
                       name: P1
                       state_content: state
-                    - entity: sensor.marstek_m1_battery_state_of_charge
+                    - entity: sensor.omnibattery_system_soc
                       fill_width: false
                       content_layout: icon-bottom
                       name: Bat %
                       state_content: state
-                    - entity: sensor.marstek_m1_ac_power
+                    - entity: sensor.marstek_venus_1_ac_power
                       fill_width: false
                       name: Bat Charge
                       content_layout: icon-bottom
@@ -60,7 +60,6 @@ views:
             slider_fill_orientation: left
             slider_value_position: right
             entity: device_tracker.private_ble_device_09648c
-            rows: 0.938
             hide_main_background: false
             footer_mode: false
             styles: |+
@@ -99,6 +98,10 @@ views:
                   : 'var(--color-alert)'} !important;
               }
 
+            grid_options:
+              columns: 12
+              rows: 0.922
+            rows: 0.922
           - type: custom:bubble-card
             card_type: button
             entity: device_tracker.iphone_rients
@@ -393,11 +396,18 @@ views:
             grid_options:
               columns: 24
               rows: 0.8
-          - type: map
+          - type: history-graph
+            grid_options:
+              columns: 24
+              rows: auto
             entities:
-              - entity: device_tracker.iphone_rients
-              - entity: device_tracker.iphone_anita
-            theme_mode: auto
+              - entity: sensor.berekende_l1_ampere
+                name: MK/BEN/HAL/KOFFIE/TRAP/OVEN
+              - entity: sensor.berekende_l2_ampere
+                name: TA/BOY/VAAT/AIRCO
+              - entity: sensor.current_phase_3
+                name: IND/WAS/BOVEN
+            hours_to_show: 1
           - entities:
               - entity: calendar.regio_uh_bestuur
                 name: Werk & Afspraken
@@ -506,21 +516,11 @@ views:
       badges_position: bottom
       badges_wrap: wrap
     badges:
-      - type: entity
-        show_name: true
-        show_state: true
-        show_icon: true
-        entity: input_select.house_battery_strategy
-        name: Choose strategy
+      - type: shortcut
         tap_action:
-          action: more-info
-      - type: entity
-        show_name: true
-        show_state: true
-        show_icon: true
-        entity: input_text.house_battery_strategy_active_sub_strategy
-        show_entity_picture: false
-        name: Executing
+          action: navigate
+          navigation_path: /thuis-baterij-new4-5
+        text: Thuis Batterij
       - type: entity
         show_name: true
         show_state: true
@@ -534,27 +534,37 @@ views:
         show_name: true
         show_state: true
         show_icon: true
-        entity: input_boolean.status_niet_thuis
-        tap_action:
-          action: toggle
+        entity: input_number.maxamperel1
+        name: Fase 1
+        color: deep-purple
+        show_entity_picture: false
       - type: entity
         show_name: true
         show_state: true
         show_icon: true
-        entity: binary_sensor.motion_zolder_motion
-        name: Zolder
+        entity: input_number.maxamperel2
+        name: Fase 2
+        color: deep-purple
+        show_entity_picture: false
       - type: entity
         show_name: true
         show_state: true
         show_icon: true
-        entity: binary_sensor.motion_kantoor_motion
-        name: Kantoor
+        entity: input_number.maxamperel3
+        name: Fase 3
+        color: deep-purple
+        show_entity_picture: false
       - type: entity
+        entity: input_select.house_battery_strategy
+      - type: entity
+        entity: input_text.house_battery_strategy_active_sub_strategy
         show_name: true
+      - type: entity
+        show_name: false
         show_state: true
         show_icon: true
-        entity: binary_sensor.beweging_woonkamer_presence
-        name: Woonkamer
+        entity: select.marstek_m1_forcible_charge_discharge
+        icon: mdi:battery
   - type: sections
     max_columns: 4
     title: Energie
@@ -569,9 +579,6 @@ views:
           - title: Energiedistributie vandaag
             type: energy-distribution
             link_dashboard: true
-          - type: heading
-            heading: Energie
-            heading_style: title
       - type: grid
         cards:
           - type: heading
@@ -588,65 +595,47 @@ views:
                 name: IND/WAS/BOVEN
               - entity: sensor.p1_meter_power
                 name: Net belasting
-              - entity: input_text.house_battery_strategy_active_sub_strategy
-                name: Execute
             hours_to_show: 0.05
             show_names: true
             logarithmic_scale: false
             expand_legend: false
           - type: history-graph
             entities:
-              - entity: sensor.current_phase_1
+              - entity: sensor.berekende_l1_ampere
                 name: Fase 1
-              - entity: sensor.current_phase_2
+              - entity: sensor.berekende_l2_ampere
                 name: Fase 2
               - entity: sensor.current_phase_3
                 name: Fase 3
-              - entity: select.marstek_m1_forcible_charge_discharge
-                name: M1
             hours_to_show: 0.05
           - type: history-graph
             entities:
-              - entity: sensor.keuken_shelly_meter_vaatwasser_vermogen
-                name: Vaatwasser
               - entity: sensor.keuken_shelly_1pm_boyler_vermogen
                 name: Boyler
-              - entity: switch.keuken_shelly_1pm_boyler
-                name: Boyler
+              - entity: sensor.keuken_shelly_1pm_vaatwasser_vermogen
+                name: Vaatwasser
             hours_to_show: 0.3
             logarithmic_scale: false
             expand_legend: false
           - type: statistics-graph
             entities:
-              - entity: sensor.l1_fase_1
+              - entity: sensor.berekende_l1_ampere
                 name: MK/BEN/HAL/KOFFIE/TRAP/OVEN
-              - entity: sensor.l1_fase_2
-                name: TA/BOY/VAAT/AIRCO
-              - entity: sensor.l1_fase_3
-                name: IND/WAS/BOVEN
-            days_to_show: 4
-            period: hour
-            chart_type: line
-            stat_types:
-              - max
-              - mean
-              - min
-          - type: statistics-graph
-            entities:
-              - entity: sensor.current_phase_1
-                name: MK/BEN/HAL/KOFFIE/TRAP/OVEN
-              - entity: sensor.current_phase_2
+              - entity: sensor.berekende_l2_ampere
                 name: TA/BOY/VAAT/AIRCO
               - entity: sensor.current_phase_3
                 name: IND/WAS/BOVEN
             title: Maximale Stroom Fase
-            days_to_show: 4
+            days_to_show: 1
             period: hour
             chart_type: line
             stat_types:
               - max
+              - min
             hide_legend: false
+            expand_legend: false
             logarithmic_scale: false
+            energy_date_selection: false
           - type: statistics-graph
             entities:
               - entity: sensor.keuken_shelly_1pm_boyler_vermogen
@@ -656,7 +645,7 @@ views:
                 name: Vaatwasser
                 color: green
             title: 'Maximale vermogen '
-            days_to_show: 4
+            days_to_show: 2
             period: hour
             chart_type: line-stack
             stat_types:
@@ -687,6 +676,10 @@ views:
         name: Fase 3
         color: deep-purple
         show_entity_picture: false
+    header:
+      layout: center
+      badges_position: bottom
+      badges_wrap: wrap
   - type: sections
     max_columns: 4
     title: Lampen
@@ -831,6 +824,32 @@ views:
         cards:
           - type: heading
             heading: Nieuwe sectie
+    badges:
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.motion_zolder_motion
+        name: Zolder
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.motion_kantoor_motion
+        name: Kantoor
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: input_boolean.status_niet_thuis
+        tap_action:
+          action: toggle
+      - type: entity
+        show_name: true
+        show_state: true
+        show_icon: true
+        entity: binary_sensor.beweging_woonkamer_presence
+        name: Woonkamer
   - type: sections
     max_columns: 4
     icon: mdi:cog-outline
