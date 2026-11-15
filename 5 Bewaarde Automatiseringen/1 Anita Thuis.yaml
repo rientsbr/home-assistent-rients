@@ -1,0 +1,18 @@
+alias: 1 - Anita - Is Thuis
+description: ''
+triggers:
+  - entity_id:
+      - device_tracker.10063a1aa0cfebcb_bermuda_tracker
+    to: home
+    trigger: state
+conditions: []
+actions:
+  - entity_id: input_boolean.status_anita_ver_weg
+    alias: 'Anita Status Ver weg: UIT'
+    action: input_boolean.turn_off
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.status_anita_thuis
+mode: single

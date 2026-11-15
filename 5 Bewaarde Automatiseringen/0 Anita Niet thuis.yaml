@@ -1,0 +1,19 @@
+alias: 0 - Anita - Niet Thuis
+description: Anita is Niet Thuis
+triggers:
+  - entity_id:
+      - device_tracker.10063a1aa0cfebcb_bermuda_tracker
+    from: home
+    trigger: state
+conditions: []
+actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.status_anita_thuis
+    data: {}
+  - action: input_boolean.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id: input_boolean.status_anita_ver_weg
+mode: single
