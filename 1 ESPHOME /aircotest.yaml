@@ -1,0 +1,74 @@
+esphome:
+  name: airco-mfz-kt50vg
+  friendly_name: Airco Woonkamer
+
+esp32:
+  board: m5stack-atom
+  framework:
+    type: arduino
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+ota:
+  - platform: esphome
+
+logger:
+  baud_rate: 0
+
+# Haal de Mitsubishi CN105 component binnen
+external_components:
+  - source: github://echavet/MitsubishiCN105Esphome@main
+    refresh: 0s
+
+uart:
+  id: hp_uart
+  baud_rate: 2400
+  tx_pin: GPIO26
+  rx_pin: GPIO32
+
+climate:
+  - platform: mitsubishi_cn105
+    name: "MFZ-KT50VG"
+    id: hp_climate
+    uart_id: hp_uart
+    remote_temperature_timeout: 30min
+    update_interval: 2s
+    visual:
+      min_temperature: 16
+      max_temperature: 31
+      temperature_step: 0.5
+    # Optioneel: voeg diagnostische sensoren toe
+    compressor_frequency_sensor:
+      name: "Compressor Frequentie"
+    outside_air_temperature_sensor:
+      name: "Buitentemperatuur"
+
+# Optioneel: Stuur een externe kamertemperatuur uit Home Assistant door naar de airco
+sensor:
+  - platform: homeassistant
+    id: externe_kamertemperatuur
+    entity_id: sensor.woonkamer_temperatuur # <-- Pas dit aan naar jouw sensor
+    on_value:
+      then:
+        - lambda: 'id(hp_climate).set_remote_temperature(x);'
+
+# Optioneel: Gebruik de knop op de Atom Lite om de airco handmatig aan/uit te zetten
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO39
+      inverted: true
+    name: "Atom Lite Knop"
+    on_press:
+      then:
+        - climate.control:
+            id: hp_climate
+            mode: !lambda |-
+              if (id(hp_climate).mode == climate::CLIMATE_MODE_OFF) {
+                return climate::CLIMATE_MODE_HEAT_COOL;
+              } else {
+                return climate::CLIMATE_MODE_OFF;
+              }
