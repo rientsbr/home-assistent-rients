@@ -11,6 +11,13 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
+  # Maakt een fallback hotspot aan als WiFi wegvalt
+  ap:
+    ssid: "Airco-Atom-Fallback"
+    password: "veranderditwachtwoord"
+
+captive_portal:
+
 api:
 ota:
   - platform: esphome
@@ -18,17 +25,30 @@ ota:
 logger:
   baud_rate: 0
 
-# Haal de Mitsubishi CN105 component binnen
+# Echavet Mitsubishi CN105 integratie
 external_components:
   - source: github://echavet/MitsubishiCN105Esphome@main
     refresh: 0s
 
+# UART communicatie via de witte Grove-poort onderop de Atom Lite
 uart:
   id: hp_uart
   baud_rate: 2400
   tx_pin: GPIO26
   rx_pin: GPIO32
 
+# RGB Status-LED op de voorkant van de Atom Lite (GPIO27)
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
+    pin: GPIO27
+    num_leds: 1
+    chipset: SK6812
+    id: status_led
+    name: "Atom Status LED"
+    internal: true # Verberg in Home Assistant (wordt automatisch aangestuurd)
+
+# Hoofd-climate entiteit en extra sensoren
 climate:
   - platform: mitsubishi_cn105
     name: "MFZ-KT50VG"
@@ -40,28 +60,52 @@ climate:
       min_temperature: 16
       max_temperature: 31
       temperature_step: 0.5
-    # Optioneel: voeg diagnostische sensoren toe
     compressor_frequency_sensor:
       name: "Compressor Frequentie"
     outside_air_temperature_sensor:
       name: "Buitentemperatuur"
+    vertical_vane_select:
+      name: "Verticale Lamel"
+    horizontal_vane_select:
+      name: "Horizontale Lamel"
+    # Pas de kleur van de Atom LED automatisch aan op basis van de airco-modus
+    on_state:
+      - lambda: |-
+          auto call = id(status_led).turn_on();
+          call.set_brightness(0.3); // Niet te fel (30%)
+          if (x.mode == climate::CLIMATE_MODE_OFF) {
+            id(status_led).turn_off().perform();
+            return;
+          } else if (x.mode == climate::CLIMATE_MODE_HEAT) {
+            call.set_rgb(1.0, 0.3, 0.0); // Oranje/Rood
+          } else if (x.mode == climate::CLIMATE_MODE_COOL) {
+            call.set_rgb(0.0, 0.4, 1.0); // Blauw
+          } else if (x.mode == climate::CLIMATE_MODE_DRY) {
+            call.set_rgb(0.6, 0.0, 1.0); // Paars
+          } else if (x.mode == climate::CLIMATE_MODE_FAN_ONLY) {
+            call.set_rgb(0.0, 1.0, 0.3); // Groen
+          } else {
+            call.set_rgb(1.0, 1.0, 1.0); // Wit (Auto)
+          }
+          call.perform();
 
-# Optioneel: Stuur een externe kamertemperatuur uit Home Assistant door naar de airco
+# Stuur kamertemperatuur uit Home Assistant naar de airco
+# Verwijder dit gehele 'sensor:' blok als je de interne sensor van de airco wilt gebruiken
 sensor:
   - platform: homeassistant
     id: externe_kamertemperatuur
-    entity_id: sensor.woonkamer_temperatuur # <-- Pas dit aan naar jouw sensor
+    entity_id: sensor.woonkamer_temperatuur # <-- Vervang door jouw sensor entity_id
     on_value:
       then:
         - lambda: 'id(hp_climate).set_remote_temperature(x);'
 
-# Optioneel: Gebruik de knop op de Atom Lite om de airco handmatig aan/uit te zetten
+# Fysieke knop op de Atom Lite (druk op de voorkant om aan/uit te zetten)
 binary_sensor:
   - platform: gpio
     pin:
       number: GPIO39
       inverted: true
-    name: "Atom Lite Knop"
+    name: "Atom Knop"
     on_press:
       then:
         - climate.control:
