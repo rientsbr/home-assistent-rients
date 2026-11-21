@@ -1,10 +1,13 @@
 #
-# Slimmemeter implementatie voor ESPHome met de Zuidwijk slimmemeter+ 
-# 
----
+# Geoptimaliseerde Slimmemeter implementatie voor ESPHome (Zuidwijk SlimmeLezer+)
+#
 substitutions:
   device_name: slimmelezer
-    
+  # Pas deze limieten eventueel aan op basis van je hoofdaansluiting (standaard afgestemd op 3x25A)
+  max_power_total: "20.0" # Max totaal vermogen in kW (3x25A = ~17.25 kW)
+  max_power_phase: "8.0"  # Max vermogen per fase in kW (25A = ~5.75 kW + marge)
+  max_current: "35.0"     # Max stroomsterkte per fase in Ampère
+
 esphome:
   name: ${device_name}
   name_add_mac_suffix: false
@@ -15,43 +18,41 @@ esp8266:
   board: d1_mini
 
 wifi:
-  ssid: !secret wifi_ssid 
+  ssid: !secret wifi_ssid
   password: !secret wifi_password
 
-  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  # Fallback hotspot als wifi wegvalt
   ap:
     ssid: ${device_name}
-  
-  # Powersaving for brownout due to 250mA restriction P1
-  #output_power: 10dB
+
+  # Schakel onderstaande regel in (haal # weg) als je geen externe USB-voeding gebruikt en last houdt van resets
+  # output_power: 10dB
 
 captive_portal:
 
-# Enable logging
 logger:
   baud_rate: 0
-#  logs: 
-#    component: ERROR
+  level: WARN # Minder logging bespaart geheugen en CPU op de ESP8266
 
-# Enable Home Assistant API
 api:
   encryption:
     key: !secret slimmelezer__encryption_key
+
 ota:
   - platform: esphome
 
-#web_server:
-#  port: 80
-#
-#  auth:
-#    username: rients
-#    password: !secret atom__web_password
-#    type: digest
+# Webserver uitgeschakeld om RAM te besparen op de ESP8266 (voorkomt haperingen)
+# web_server:
+#   port: 80
+#   auth:
+#     username: rients
+#     password: !secret atom__web_password
+#     type: digest
 
 uart:
   baud_rate: 115200
   rx_pin: D7
-  rx_buffer_size: 1536 #4096
+  rx_buffer_size: 1536 # Ruim genoeg voor Nederlandse telegrammen, bespaart 2.5KB RAM
 
 globals:
   - id: has_key
@@ -72,12 +73,12 @@ switch:
 binary_sensor:
   - platform: gpio
     name: "Reset switch GPIO5"
-    pin: 
+    pin:
       number: GPIO5
       mode:
         input: true
         pullup: false
-    on_press: 
+    on_press:
       then:
         - logger.log: "Reset button pressed"
         - switch.turn_on: resetbutton
@@ -85,193 +86,192 @@ binary_sensor:
 light:
   - platform: status_led
     name: "Status LED"
-    pin: 
+    pin:
       number: GPIO02
       inverted: true
 ## END RESET FUNCTION ##
 
 dsmr:
   id: dsmr_instance
-  max_telegram_length: 1536 #4096
-  # For Luxembourg users set here your decryption key
-  #decryption_key: !secret decryption_key // enable this when using decryption for Luxembourg; key like '00112233445566778899AABBCCDDEEFF'
+  max_telegram_length: 1536
 
 sensor:
+  # --- TOTAALSTANDEN ENERGIE (kWh) ---
+  # Filter 'x <= 0.0' voorkomt dat een tijdelijke 0-waarde een gigantische piek veroorzaakt in het HA Energy Dashboard
   - platform: dsmr
     energy_delivered_tariff1:
       name: "Energy Consumed Tariff 1"
       filters:
+        - lambda: 'if (x <= 0.0) return {}; return x;'
         - or:
-            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
-            - delta: 0.001  
+            - throttle: 1min
+            - delta: 0.001
+
     energy_delivered_tariff2:
       name: "Energy Consumed Tariff 2"
       filters:
+        - lambda: 'if (x <= 0.0) return {}; return x;'
         - or:
-            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
-            - delta: 0.001 
+            - throttle: 1min
+            - delta: 0.001
+
     energy_returned_tariff1:
       name: "Energy Produced Tariff 1"
       filters:
+        - lambda: 'if (x < 0.0) return {}; return x;'
         - or:
-            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
-            - delta: 0.001 
+            - throttle: 1min
+            - delta: 0.001
+
     energy_returned_tariff2:
       name: "Energy Produced Tariff 2"
       filters:
+        - lambda: 'if (x < 0.0) return {}; return x;'
         - or:
-            - throttle: 1min          # Stuurt sowieso elke 1 minuten de huidige stand door...
-            - delta: 0.001 
+            - throttle: 1min
+            - delta: 0.001
+
+    # --- TOTAAL VERMOGEN (kW) ---
+    # Eerst clampen om pieken weg te gooien, daarna pas het voortschrijdend gemiddelde berekenen
     power_delivered:
       name: "Power Consumed"
       accuracy_decimals: 3
       filters:
-        # 1. Bereken continu het gemiddelde van de laatste 10 metingen/seconden
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_total}
         - sliding_window_moving_average:
             window_size: 10
             send_every: 1
-        # 2. Geef dit gemiddelde maximaal één keer per 5 seconden door aan Home Assistant
         - throttle: 5s
+
     power_returned:
       name: "Power Produced"
       accuracy_decimals: 3
       filters:
-        # 1. Bereken continu het gemiddelde van de laatste 10 metingen/seconden
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_total}
         - sliding_window_moving_average:
             window_size: 10
             send_every: 1
-        # 2. Geef dit gemiddelde maximaal één keer per 5 seconden door aan Home Assistant
         - throttle: 5s
-#    electricity_failures:
-#      name: "Electricity Failures"
-#      icon: mdi:alert
-#    electricity_long_failures:
-#      name: "Long Electricity Failures"
-#      icon: mdi:alert
-#    voltage_l1:
-#      name: "Voltage Phase 1"
-#    voltage_l2:
-#      name: "Voltage Phase 2"
-#    voltage_l3:
-#      name: "Voltage Phase 3"
+
+    # --- STROOMSTERKTE PER FASE (A) ---
     current_l1:
       name: "Current Phase 1"
       accuracy_decimals: 1
       filters:
-#       - or:
-#            - throttle_average: 10s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
-#            - delta: 1.0  
-
         - clamp:
             min_value: 0.0
-            max_value: 35.0
+            max_value: ${max_current}
+        - or:
+            - throttle: 10s
+            - delta: 1.0 # Stuurt direct een update bij een sprong van >= 1
 
     current_l2:
       name: "Current Phase 2"
       accuracy_decimals: 1
       filters:
-#        - or:
-#            - throttle_average: 10s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
-#            - delta: 1.0 
         - clamp:
             min_value: 0.0
-            max_value: 35.0
+            max_value: ${max_current}
+        - or:
+            - throttle: 10s
+            - delta: 1.0 # Stuurt direct een update bij een sprong van >= 1
 
     current_l3:
       name: "Current Phase 3"
       accuracy_decimals: 1
       filters:
-#        - or:
-#            - throttle_average: 10s    # Stuurt elke 30 seconden een update als de stroom stabiel is...
-#            - delta: 1.0  
         - clamp:
             min_value: 0.0
-            max_value: 35.0
-            
+            max_value: ${max_current}
+        - or:
+            - throttle: 10s
+            - delta: 1.0 # Stuurt direct een update bij een sprong van >= 1
+
+    # --- VERMOGEN PER FASE (kW) ---
     power_delivered_l1:
       name: "Power Consumed Phase 1"
       accuracy_decimals: 3
       filters:
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_phase}
         - or:
-            - throttle_average: 10s    # Stuurt elke 30 seconden een rustig gemiddelde door...
-            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
-
+            - throttle_average: 10s
+            - delta: 0.020
 
     power_delivered_l2:
       name: "Power Consumed Phase 2"
       accuracy_decimals: 3
       filters:
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_phase}
         - or:
-            - throttle_average: 10s    # Stuurt elke 30 seconden een rustig gemiddelde door...
-            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
-
+            - throttle_average: 10s
+            - delta: 0.020
 
     power_delivered_l3:
       name: "Power Consumed Phase 3"
       accuracy_decimals: 3
       filters:
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_phase}
         - or:
-            - throttle_average: 10s    # Stuurt elke 30 seconden een rustig gemiddelde door...
-            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+            - throttle_average: 10s
+            - delta: 0.020
 
-#      filters: 
-#        - lambda: |-
-#            if (x> 5.75) {
-#            return{};
-#            }
-#            return{x};
     power_returned_l1:
       name: "Power Produced Phase 1"
       accuracy_decimals: 3
       filters:
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_phase}
         - or:
-            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
-            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+            - throttle_average: 30s
+            - delta: 0.020
 
     power_returned_l2:
       name: "Power Produced Phase 2"
       accuracy_decimals: 3
       filters:
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_phase}
         - or:
-            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
-            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+            - throttle_average: 30s
+            - delta: 0.020
 
     power_returned_l3:
       name: "Power Produced Phase 3"
       accuracy_decimals: 3
       filters:
+        - clamp:
+            min_value: 0.0
+            max_value: ${max_power_phase}
         - or:
-            - throttle_average: 30s    # Stuurt elke 30 seconden een rustig gemiddelde door...
-            - delta: 0.020             # ...maar update direct bij een verandering van 20 Watt (0.020 kW) of meer!
+            - throttle_average: 30s
+            - delta: 0.020
 
+    # --- GASVERBRUIK (m³) ---
     gas_delivered:
       name: "Gas Consumed"
       accuracy_decimals: 3
       filters:
+        - lambda: 'if (x <= 0.0) return {}; return x;'
         - or:
-            - throttle: 1h            # Stuurt sowieso elk uur de huidige stand door...
-            - delta: 0.001            # ...maar update direct zodra er exact 1 liter (0.001 m³) gas is verbruikt!
-#  - platform: uptime
-#    name: "SlimmeLezer Uptime"
-#  - platform: wifi_signal
-#    name: "SlimmeLezer Wi-Fi Signal"
-#    update_interval: 60s
+            - throttle: 1h
+            - delta: 0.001
 
 text_sensor:
   - platform: dsmr
     identification:
       name: "DSMR Identification"
-#    p1_version:
-#      name: "DSMR Version"
-#    timestamp:
-#      name: "Timestamp"
-#  - platform: wifi_info
-#    ip_address:
-#      name: "SlimmeLezer IP Address"
-#    ssid:
-#      name: "SlimmeLezer Wi-Fi SSID"
-#    bssid:
-#      name: "SlimmeLezer Wi-Fi BSSID"
   - platform: version
     name: "ESPHome Version"
     hide_timestamp: true
