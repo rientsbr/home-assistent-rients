@@ -1,11 +1,10 @@
 #
-# Geoptimaliseerde Slimmemeter implementatie voor ESPHome (Zuidwijk SlimmeLezer+)
+# Maximaal geoptimaliseerde & stabiele Slimmemeter YAML (Zuidwijk SlimmeLezer+)
 #
 substitutions:
   device_name: slimmelezer
-  # Pas deze limieten eventueel aan op basis van je hoofdaansluiting (standaard afgestemd op 3x25A)
-  max_power_total: "20.0" # Max totaal vermogen in kW (3x25A = ~17.25 kW)
-  max_power_phase: "8.0"  # Max vermogen per fase in kW (25A = ~5.75 kW + marge)
+  max_power_total: "20.0" # Max totaal vermogen in kW
+  max_power_phase: "8.0"  # Max vermogen per fase in kW
   max_current: "35.0"     # Max stroomsterkte per fase in Ampère
 
 esphome:
@@ -14,54 +13,36 @@ esphome:
   friendly_name: slimmemeter
 
 esp8266:
-  restore_from_flash: true
+  restore_from_flash: false # Bespaart RAM en voorkomt flash-slijtage/stutter
   board: d1_mini
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+  # Verlaagt piekstroom op de P1-poort drastisch (voorkomt brownout-restarts!)
+  # Verhoog naar 16dB of 17dB als je wifi-signaal te zwak wordt
+  output_power: 14dB 
 
-  # Fallback hotspot als wifi wegvalt
+  # Fallback hotspot als wifi wegvalt (zonder zware captive_portal)
   ap:
     ssid: ${device_name}
 
-  # Schakel onderstaande regel in (haal # weg) als je geen externe USB-voeding gebruikt en last houdt van resets
-  # output_power: 10dB
-
-captive_portal:
-
 logger:
   baud_rate: 0
-  level: WARN # Minder logging bespaart geheugen en CPU op de ESP8266
+  level: ERROR # Alleen echte fouten loggen bespaart veel RAM en CPU
 
 api:
   encryption:
     key: !secret slimmelezer__encryption_key
+  reboot_timeout: 15min # Herstart pas na 15 min geen verbinding (standaard is dit sneller)
 
 ota:
   - platform: esphome
 
-# Webserver uitgeschakeld om RAM te besparen op de ESP8266 (voorkomt haperingen)
-# web_server:
-#   port: 80
-#   auth:
-#     username: rients
-#     password: !secret atom__web_password
-#     type: digest
-
 uart:
   baud_rate: 115200
   rx_pin: D7
-  rx_buffer_size: 1536 # Ruim genoeg voor Nederlandse telegrammen, bespaart 2.5KB RAM
-
-globals:
-  - id: has_key
-    type: bool
-    restore_value: yes
-    initial_value: "false"
-  - id: stored_decryption_key
-    type: char[32]
-    restore_value: yes
+  rx_buffer_size: 1024 # 1KB is precies groot genoeg voor een NL DSMR5 telegram
 
 ## RESET FUNCTION ##
 switch:
@@ -73,6 +54,7 @@ switch:
 binary_sensor:
   - platform: gpio
     name: "Reset switch GPIO5"
+    internal: true # Hoeft niet naar HA gestuurd te worden
     pin:
       number: GPIO5
       mode:
@@ -80,12 +62,12 @@ binary_sensor:
         pullup: false
     on_press:
       then:
-        - logger.log: "Reset button pressed"
         - switch.turn_on: resetbutton
 
 light:
   - platform: status_led
     name: "Status LED"
+    internal: true # Bespaart API-verkeer
     pin:
       number: GPIO02
       inverted: true
@@ -93,11 +75,10 @@ light:
 
 dsmr:
   id: dsmr_instance
-  max_telegram_length: 1536
+  max_telegram_length: 1024
 
 sensor:
   # --- TOTAALSTANDEN ENERGIE (kWh) ---
-  # Filter 'x <= 0.0' voorkomt dat een tijdelijke 0-waarde een gigantische piek veroorzaakt in het HA Energy Dashboard
   - platform: dsmr
     energy_delivered_tariff1:
       name: "Energy Consumed Tariff 1"
@@ -105,7 +86,7 @@ sensor:
         - lambda: 'if (x <= 0.0) return {}; return x;'
         - or:
             - throttle: 1min
-            - delta: 0.001
+            - delta: 0.005 # Update per 5 Wh i.p.v. 1 Wh (scheelt 80% wifi-verkeer)
 
     energy_delivered_tariff2:
       name: "Energy Consumed Tariff 2"
@@ -113,7 +94,7 @@ sensor:
         - lambda: 'if (x <= 0.0) return {}; return x;'
         - or:
             - throttle: 1min
-            - delta: 0.001
+            - delta: 0.005
 
     energy_returned_tariff1:
       name: "Energy Produced Tariff 1"
@@ -121,7 +102,7 @@ sensor:
         - lambda: 'if (x < 0.0) return {}; return x;'
         - or:
             - throttle: 1min
-            - delta: 0.001
+            - delta: 0.005
 
     energy_returned_tariff2:
       name: "Energy Produced Tariff 2"
@@ -129,10 +110,9 @@ sensor:
         - lambda: 'if (x < 0.0) return {}; return x;'
         - or:
             - throttle: 1min
-            - delta: 0.001
+            - delta: 0.005
 
     # --- TOTAAL VERMOGEN (kW) ---
-    # Eerst clampen om pieken weg te gooien, daarna pas het voortschrijdend gemiddelde berekenen
     power_delivered:
       name: "Power Consumed"
       accuracy_decimals: 3
@@ -140,10 +120,9 @@ sensor:
         - clamp:
             min_value: 0.0
             max_value: ${max_power_total}
-        - sliding_window_moving_average:
-            window_size: 10
-            send_every: 1
-        - throttle: 5s
+        - or:
+            - throttle_average: 10s # Veel lichter voor RAM dan sliding_window
+            - delta: 0.050          # Directe update bij sprong van >= 50 Watt
 
     power_returned:
       name: "Power Produced"
@@ -152,10 +131,9 @@ sensor:
         - clamp:
             min_value: 0.0
             max_value: ${max_power_total}
-        - sliding_window_moving_average:
-            window_size: 10
-            send_every: 1
-        - throttle: 5s
+        - or:
+            - throttle_average: 10s
+            - delta: 0.050
 
     # --- STROOMSTERKTE PER FASE (A) ---
     current_l1:
@@ -166,8 +144,8 @@ sensor:
             min_value: 0.0
             max_value: ${max_current}
         - or:
-            - throttle: 10s
-            - delta: 1.0 # Stuurt direct een update bij een sprong van >= 1
+            - throttle: 15s
+            - delta: 1.0 # Vangt inschakelpieken (>= 1A) direct op
 
     current_l2:
       name: "Current Phase 2"
@@ -177,8 +155,8 @@ sensor:
             min_value: 0.0
             max_value: ${max_current}
         - or:
-            - throttle: 10s
-            - delta: 1.0 # Stuurt direct een update bij een sprong van >= 1
+            - throttle: 15s
+            - delta: 1.0
 
     current_l3:
       name: "Current Phase 3"
@@ -188,8 +166,8 @@ sensor:
             min_value: 0.0
             max_value: ${max_current}
         - or:
-            - throttle: 10s
-            - delta: 1.0 # Stuurt direct een update bij een sprong van >= 1
+            - throttle: 15s
+            - delta: 1.0
 
     # --- VERMOGEN PER FASE (kW) ---
     power_delivered_l1:
@@ -200,8 +178,8 @@ sensor:
             min_value: 0.0
             max_value: ${max_power_phase}
         - or:
-            - throttle_average: 10s
-            - delta: 0.020
+            - throttle_average: 15s
+            - delta: 0.030 # Directe update bij >= 30 Watt verandering
 
     power_delivered_l2:
       name: "Power Consumed Phase 2"
@@ -211,8 +189,8 @@ sensor:
             min_value: 0.0
             max_value: ${max_power_phase}
         - or:
-            - throttle_average: 10s
-            - delta: 0.020
+            - throttle_average: 15s
+            - delta: 0.030
 
     power_delivered_l3:
       name: "Power Consumed Phase 3"
@@ -222,8 +200,8 @@ sensor:
             min_value: 0.0
             max_value: ${max_power_phase}
         - or:
-            - throttle_average: 10s
-            - delta: 0.020
+            - throttle_average: 15s
+            - delta: 0.030
 
     power_returned_l1:
       name: "Power Produced Phase 1"
@@ -234,7 +212,7 @@ sensor:
             max_value: ${max_power_phase}
         - or:
             - throttle_average: 30s
-            - delta: 0.020
+            - delta: 0.030
 
     power_returned_l2:
       name: "Power Produced Phase 2"
@@ -245,7 +223,7 @@ sensor:
             max_value: ${max_power_phase}
         - or:
             - throttle_average: 30s
-            - delta: 0.020
+            - delta: 0.030
 
     power_returned_l3:
       name: "Power Produced Phase 3"
@@ -256,7 +234,7 @@ sensor:
             max_value: ${max_power_phase}
         - or:
             - throttle_average: 30s
-            - delta: 0.020
+            - delta: 0.030
 
     # --- GASVERBRUIK (m³) ---
     gas_delivered:
@@ -268,10 +246,12 @@ sensor:
             - throttle: 1h
             - delta: 0.001
 
+  # --- DIAGNOSTIEK (Om te zien of hij stabiel blijft) ---
+  - platform: uptime
+    name: "SlimmeLezer Uptime"
+    update_interval: 60s
+
 text_sensor:
-  - platform: dsmr
-    identification:
-      name: "DSMR Identification"
-  - platform: version
-    name: "ESPHome Version"
-    hide_timestamp: true
+  - platform: debug
+    reset_reason:
+      name: "SlimmeLezer Reset Reason"
