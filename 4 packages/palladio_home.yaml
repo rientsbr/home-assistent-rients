@@ -1,12 +1,10 @@
 # Templates etc voor RM Brandsma HA Dashboard
 #
 #
-
-
 template:
   - sensor:
-      # Dit is de sensor die de Netto Vermogen die uit de integratie van ESPHome komt
-      # 
+      # Dit is de sensor die gebruikt word om de Netto Power van de P1 meter weer te geven in 1 sensor.
+      # Deze word onderandere gebruikt om de Thuis Accu aan te sturen in Omnibattery
       - name: "L1 Meter Power"
         unique_id: "l1_meter_power"
         unit_of_measurement: "W"
@@ -17,17 +15,16 @@ template:
           {% set production = states('sensor.power_produced') | float(0) %}
           {{ (consumption - production) *1000 | round(2) }}
 
-      # House battery control | Grid power
-      # Your P1 meter indicates the power drawn or returned to grid.
-      # This "P1 meter power" sensor acts as an alias for you power sensing configuration and is used throughout the node-RED scripts.
+      # Deze sensor is gemaakt voor Home Battery Controkl omdat deze exacte waarde gebruikt word in de Node-RED scripts
+      #
       - name: "P1 Meter Power"
         unique_id: "p1_meter_power"
-        state: "{{ states('sensor.l1_meter_power') }}" # << SET YOUR GRID POWER SENSOR HERE
+        state: "{{ states('sensor.l1_meter_power') }}" 
         unit_of_measurement: "W"
         device_class: "power"
         state_class: "measurement"
 
-      # 
+      # De volgende 3 sensoren heb ik gemaakt om het vermogen per fase te kunnen weergeven in het dashboard
       - name: L1 Fase 1
         unique_id: l1_meter_fase1
         unit_of_measurement: W
@@ -38,21 +35,16 @@ template:
           {% set production = states('sensor.power_produced_phase_1') | float(none) %}
           {{ (consumption - production) *1000 | round(2) }}
 
-            
-  - sensor:
-      # 
-    - name: L1 Fase 2
-      unique_id: l1_meter_fase2
-      unit_of_measurement: W
-      device_class: power
-      state_class: measurement
-      state: >
-        {% set consumption = states('sensor.power_consumed_phase_2') | float(0) %}
-        {% set production = states('sensor.power_produced_phase_2') | float(0) %}
-        {{ ((consumption - production) * 1000) | round(2) }}
+      - name: L1 Fase 2
+        unique_id: l1_meter_fase2
+        unit_of_measurement: W
+        device_class: power
+        state_class: measurement
+        state: >
+          {% set consumption = states('sensor.power_consumed_phase_2') | float(0) %}
+          {% set production = states('sensor.power_produced_phase_2') | float(0) %}
+          {{ ((consumption - production) * 1000) | round(2) }}
 
-  - sensor:
-      #
       - name: L1 Fase 3
         unique_id: l1_meter_fase3
         unit_of_measurement: W
@@ -63,9 +55,9 @@ template:
           {% set production = states('sensor.power_produced_phase_3') | float(none) %}
           {{ (consumption - production) *1000 | round(2) }}
 
-#
-# 
-  - sensor:
+
+      # Nu een aantal sensoren die de Amperes (stroom) per fase weergeven. 
+      # Voor fase L1 en L2 Bereken ik die omdat hier zonnepanelen op zitten en kan de stroom dus negatief zijn.
       - name: Berekende L1 Ampere
         unique_id: berekende_l1_ampere
         unit_of_measurement: A
@@ -85,7 +77,6 @@ template:
             {{ basis_ampere }}
           {% endif %}
 
-  - sensor:
       - name: Berekende L2 Ampere
         unique_id: berekende_l2_ampere
         unit_of_measurement: A
@@ -104,47 +95,20 @@ template:
             {# Verbruik is groter, dus hou de waarde positief #}
             {{ basis_ampere }}
           {% endif %}
-
-#
-#  template voor EVOHome thermostaar
-  - sensor:
-      #
-      - name: Thermostaat Woonkamer
-        unique_id: thermostaat_woonkamer
-        unit_of_measurement: °C
-        device_class: temperature
-        state_class: measurement
-        state: >
-          {% set current_temp = state_attr('climate.woonkamer', 'current_temperature') | float(2) %}
-          {% set set_temp = state_attr('climate.woonkamer', 'temperature') | float(2) %}
-          {{ (set_temp - current_temp) * 10 | round(2) }}
-
-  - sensor:
-      #
-      - name: Thermostaat Zolder
-        unique_id: thermostaat_zolder
-        unit_of_measurement: °C
-        device_class: temperature
-        state_class: measurement
-        state: >
-          {% set current_temp = state_attr('climate.zolder', 'current_temperature') | float(2) %}
-          {% set set_temp = state_attr('climate.zolder', 'temperature') | float(2) %}
-          {{ (set_temp - current_temp) * 10 | round(2) }}
-
-
-
-
 #
 #
   - trigger:
       - platform: state
         entity_id:
-          - sensor.power_consumed_phase_1
-          - sensor.power_consumed_phase_2
-          - sensor.power_consumed_phase_3
+          - sensor.l1_fase_1
+          - sensor.l1_fase_2
+          - sensor.l1_fase_3
       - platform: time
         at: "00:00:00"
         id: "reset"
+      - platform: state
+        entity_id: input_button.reset_max_vermogen
+        id: reset
     sensor:
       - name: "Max vermogen Fase 1"
         unique_id: max_vermogen_fase_1
@@ -190,35 +154,94 @@ template:
 
 
 
-input_number:
-# Maximale stroom per fase bijhouden
+  - trigger:
+    - platform: state
+      entity_id:
+      - sensor.berekende_l1_ampere
+      - sensor.berekende_l2_ampere
+      - sensor.current_phase_3
 
-  maxamperel1:
-    # 
-    name: L1 Maximale Ampere
-    min: -35
-    max: 35
-    step: 0.1
-    unit_of_measurement: A
-    mode: box
-    icon: mdi:chart-timeline-variant-shimmer
+    - platform: time
+      at: "00:00:00"
+      id: "reset"
+    - platform: state
+      entity_id: input_button.reset_max_vermogen
+      id: reset
 
-  maxamperel2:
-    # 
-    name: L2 Maximale Ampere
-    min: -35
-    max: 35
-    step: 0.1
-    unit_of_measurement: A
-    mode: box
-    icon: mdi:chart-timeline-variant-shimmer
-  
-  maxamperel3:
-    # 
-    name: L3 Maximale Ampere
-    min: -35
-    max: 35
-    step: 1
-    unit_of_measurement: A
-    mode: box
-    icon: mdi:chart-timeline-variant-shimmer
+    sensor:
+    - name: "Max stroom Fase 1"
+      unique_id: max_stroom_fase_1
+      unit_of_measurement: "A"
+      device_class: current
+      state_class: measurement
+      state: >
+        {% if trigger.id == 'reset' %}
+          0
+        {% else %}
+          {% set huidig = states('sensor.berekende_l1_ampere') | float(0) %}
+          {% set vorig_max = this.state | float(0) %}
+          {{ [huidig, vorig_max] | max }}
+        {% endif %}
+
+    - name: "Max stroom Fase 2"
+      unique_id: max_stroom_fase_2
+      unit_of_measurement: "A"
+      device_class: current
+      state_class: measurement
+      state: >
+        {% if trigger.id == 'reset' %}
+          0
+        {% else %}
+          {% set huidig = states('sensor.berekende_l2_ampere') | float(0) %}
+          {% set vorig_max = this.state | float(0) %}
+          {{ [huidig, vorig_max] | max }}
+        {% endif %}
+
+    - name: "Max stroom Fase 3"
+      unique_id: max_stroom_fase_3
+      unit_of_measurement: "A"
+      device_class: current
+      state_class: measurement
+      state: >
+        {% if trigger.id == 'reset' %}
+          0
+        {% else %}
+          {% set huidig = states('sensor.current_phase_3') | float(0) %}
+          {% set vorig_max = this.state | float(0) %}
+          {{ [huidig, vorig_max] | max }}
+        {% endif %}
+
+
+
+#
+#  template voor EVOHome thermostaar
+  - sensor:
+      #
+      - name: Thermostaat Woonkamer
+        unique_id: thermostaat_woonkamer
+        unit_of_measurement: °C
+        device_class: temperature
+        state_class: measurement
+        state: >
+          {% set current_temp = state_attr('climate.woonkamer', 'current_temperature') | float(2) %}
+          {% set set_temp = state_attr('climate.woonkamer', 'temperature') | float(2) %}
+          {{ (set_temp - current_temp) * 10 | round(2) }}
+
+  - sensor:
+      #
+      - name: Thermostaat Zolder
+        unique_id: thermostaat_zolder
+        unit_of_measurement: °C
+        device_class: temperature
+        state_class: measurement
+        state: >
+          {% set current_temp = state_attr('climate.zolder', 'current_temperature') | float(2) %}
+          {% set set_temp = state_attr('climate.zolder', 'temperature') | float(2) %}
+          {{ (set_temp - current_temp) * 10 | round(2) }}
+
+
+input_button:
+  reset_max_vermogen:
+    name: Reset max. vermogen
+    icon: mdi:restore
+
