@@ -27,8 +27,6 @@ template:
         device_class: "power"
         state_class: "measurement"
 
-
-
       # 
       - name: L1 Fase 1
         unique_id: l1_meter_fase1
@@ -39,6 +37,7 @@ template:
           {% set consumption = states('sensor.power_consumed_phase_1') | float(none) %}
           {% set production = states('sensor.power_produced_phase_1') | float(none) %}
           {{ (consumption - production) *1000 | round(2) }}
+
             
   - sensor:
       # 
@@ -64,8 +63,8 @@ template:
           {% set production = states('sensor.power_produced_phase_3') | float(none) %}
           {{ (consumption - production) *1000 | round(2) }}
 
-##
-
+#
+# 
   - sensor:
       - name: Berekende L1 Ampere
         unique_id: berekende_l1_ampere
@@ -132,6 +131,62 @@ template:
           {% set set_temp = state_attr('climate.zolder', 'temperature') | float(2) %}
           {{ (set_temp - current_temp) * 10 | round(2) }}
 
+
+
+
+#
+#
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.power_consumed_phase_1
+          - sensor.power_consumed_phase_2
+          - sensor.power_consumed_phase_3
+      - platform: time
+        at: "00:00:00"
+        id: "reset"
+    sensor:
+      - name: "Max vermogen Fase 1"
+        unique_id: max_vermogen_fase_1
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% if trigger.id == 'reset' %}
+            0
+          {% else %}
+            {% set huidig = states('sensor.l1_fase_1') | float(0) %}
+            {% set vorig_max = this.state | float(0) %}
+            {{ [huidig, vorig_max] | max }}
+          {% endif %}
+
+      - name: "Max vermogen Fase 2"
+        unique_id: max_vermogen_fase_2
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% if trigger.id == 'reset' %}
+            0
+          {% else %}
+            {% set huidig = states('sensor.l1_fase_2') | float(0) %}
+            {% set vorig_max = this.state | float(0) %}
+            {{ [huidig, vorig_max] | max }}
+          {% endif %}
+
+      - name: "Max vermogen Fase 3"
+        unique_id: max_vermogen_fase_3
+        unit_of_measurement: "W"
+        device_class: power
+        state_class: measurement
+        state: >
+          {% if trigger.id == 'reset' %}
+            0
+          {% else %}
+            {% set huidig = states('sensor.l1_fase_3')  | float(0) %}
+            {% set vorig_max = this.state | float(0) %}
+            {{ [huidig, vorig_max] | max }}
+          {% endif %}
 
 
 
